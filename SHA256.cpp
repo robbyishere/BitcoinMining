@@ -3,7 +3,7 @@
 //Compress msg schedule
 //Compute all 3 message blocks
 //Compute final hash
-#include "BitcoinMiningHeader.h"
+#include "SHA256.h"
 
 struct messageBlocks{
 	int block[512];
@@ -284,7 +284,7 @@ string hexToBinary(char input[], int characterCount){
 }
 
 int main(){
-	char input[161]; 
+	char input[161];
 	cout<<"Enter the input: ";
 	cin.getline(input,161);
 	cout<<"Character Count: "<<cin.gcount()<<endl;
