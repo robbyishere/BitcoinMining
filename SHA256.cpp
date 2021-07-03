@@ -26,6 +26,7 @@ struct ConstantValues{
 }ConstantValues;
 struct HashValues{
 	double InitialValues;
+	int OriginalValues[32];
 	int WorkingValues[32];
 }HashValues[8];
 struct binaryAddition{
@@ -224,6 +225,7 @@ void computeInitialHashValues(){
 		}
 		
 		for(int j=0; j<32; j++){
+			HashValues[i].OriginalValues[j] = HashValues[i].WorkingValues[j]; //duplicate values
 			cout<<HashValues[i].WorkingValues[j];	
 		}
 		cout<<endl;
@@ -358,7 +360,6 @@ int main(){
 	populateShiftValues();
 	computeConstants();
 	computeInitialHashValues();
-	cout<<endl;
 
 	//Fill out rest of message schedule (i<64)
 	for(int i=16; i<17; i++){
@@ -399,8 +400,7 @@ int main(){
 		
 		//Binary Addition
 		for(int j=0; j<3; j++){
-			int inc = j;
-			binaryAdditionFunction(inc);
+			binaryAdditionFunction(j);
 		}
 		for(int j=0; j<32; j++){
 			schedule[i].word[j] = binaryAddition[6].Data[j];
@@ -419,10 +419,11 @@ int main(){
 		for(int j=0; j<32; j++){
 			cout<<schedule[i].word[j];
 		}
-
+	cout<<endl<<endl;
 	}
-	cout<<endl;
-/*
+
+	/*
+	//Print words after modification
 	for(int i=0; i<64; i++){
 		cout<<i<<": ";
 		for(int j=0; j<32; j++){
@@ -430,7 +431,20 @@ int main(){
 		}
 		cout<<endl;
 	}
-*/
+	*/
+	
+	//Clear binaryAddition class, Might not be necessary?
+	for(int i=0; i<8; i++){
+		for(int j=0; j<32; j++){
+			binaryAddition[i].Data[j] = 0;
+		}
+	}
+	int equationNumber = 2;
+	equationCompute(equationNumber, 0);
+	for(int i=0; i<32; i++){
+		cout<<Data[3].result[i];
+	}
+
 }
 void equationCompute(int equationNumber, int wordNumber){
 	int Order;
@@ -473,16 +487,22 @@ void rightShift(int RightShiftValue, int Order, int wordNumber, int equationNumb
 			if (equationNumber == 0 | equationNumber == 1){
 				Data[Order].result[i+RightShiftValue]=schedule[wordNumber].word[i];
 			}
-			else{
+			if (equationNumber == 2){
 				Data[Order].result[i+RightShiftValue]=HashValues[4].WorkingValues[i];
+			}
+			if (equationNumber == 3){
+				Data[Order].result[i+RightShiftValue]=HashValues[0].WorkingValues[i];
 			}
 		}
 		else{
 			if (equationNumber == 0 | equationNumber == 1){
 				Data[Order].result[i-(32-RightShiftValue)]=schedule[wordNumber].word[i];
 			}
-			else{
+			if (equationNumber == 2){
 				Data[Order].result[i-(32-RightShiftValue)]=HashValues[4].WorkingValues[i];
+			}
+			if (equationNumber == 3){
+				Data[Order].result[i-(32-RightShiftValue)]=HashValues[0].WorkingValues[i];
 			}
 		}
 	}
@@ -535,5 +555,27 @@ void binaryAdditionFunction(int inc){
 				binaryAddition[4 + inc].Data[31-i] = 0;
 				carry = 1;
 			}
+	}
+}
+
+void majority(){
+	for(int i=0; i<32; i++){
+		int add = HashValues[0].WorkingValues[i] + HashValues[1].WorkingValues[i] + HashValues[2].WorkingValues[i];
+		if(add == 2 | add == 3){
+			binaryAddition[1].Data[i] = 1;
+		}
+		else{
+			binaryAddition[1].Data[i] = 0;
+		}
+	}
+}
+void choice(){
+	for(int i=0; i<32; i++){
+		if(HashValues[4].WorkingValues[i] == 1){
+			binaryAddition[1].Data[i] = HashValues[5].WorkingValues[i];
+		}
+		if(HashValues[4].WorkingValues[i] == 0){
+			binaryAddition[1].Data[i] = HashValues[6].WorkingValues[i]; 
+		}
 	}
 }
