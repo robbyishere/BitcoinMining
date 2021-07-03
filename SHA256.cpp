@@ -25,9 +25,9 @@ struct ConstantValues{
 	string Computed[64];
 }ConstantValues;
 struct HashValues{
-	double InitialValues[8];
-	string WorkingValues[8];
-}HashValues;
+	double InitialValues;
+	int WorkingValues[32];
+}HashValues[8];
 struct binaryAddition{
 	int Data[32];
 }binaryAddition[7];
@@ -181,21 +181,21 @@ void computeConstants(){
 	}
 }
 void computeInitialHashValues(){
-	HashValues.InitialValues[0] = sqrt(2);
-	HashValues.InitialValues[1] = sqrt(3);
-	HashValues.InitialValues[2] = sqrt(5);
-	HashValues.InitialValues[3] = sqrt(7);
-	HashValues.InitialValues[4] = sqrt(11);
-	HashValues.InitialValues[5] = sqrt(13);
-	HashValues.InitialValues[6] = sqrt(17);
-	HashValues.InitialValues[7] = sqrt(19);
+	HashValues[0].InitialValues = sqrt(2);
+	HashValues[1].InitialValues = sqrt(3);
+	HashValues[2].InitialValues = sqrt(5);
+	HashValues[3].InitialValues = sqrt(7);
+	HashValues[4].InitialValues = sqrt(11);
+	HashValues[5].InitialValues = sqrt(13);
+	HashValues[6].InitialValues = sqrt(17);
+	HashValues[7].InitialValues = sqrt(19);
 	int InitialInteger;
 	cout<<"Initial Hash Values:"<<endl;
 	for(int i=0; i<8; i++){
-		InitialInteger = HashValues.InitialValues[i];
+		InitialInteger = HashValues[i].InitialValues;
 		int binary[32];
 		//remove starting integer and multiply by 2^32
-		double binaryConvert = trunc(((HashValues.InitialValues[i] - InitialInteger) * pow(2,32)));
+		double binaryConvert = trunc(((HashValues[i].InitialValues - InitialInteger) * pow(2,32)));
 		int loop = 0;
 		//convert to binary
 		while(binaryConvert>0){
@@ -216,15 +216,19 @@ void computeInitialHashValues(){
 		//reverse and convert to string
 		for(int j=0; j<32; j++){
 			if(binary[31-j] == 1){
-				HashValues.WorkingValues[i] = HashValues.WorkingValues[i] + "1";
+				HashValues[i].WorkingValues[j] = 1;
 			}
 			else{
-				HashValues.WorkingValues[i] = HashValues.WorkingValues[i] + "0";
+				HashValues[i].WorkingValues[j] = 0;
 			}
 		}
-		cout<<HashValues.WorkingValues[i]<<endl;	
-
+		
+		for(int j=0; j<32; j++){
+			cout<<HashValues[i].WorkingValues[j];	
 		}
+		cout<<endl;
+		}
+
 	}
 string hexToBinary(char input[], int characterCount){
 	string result;
@@ -296,10 +300,12 @@ int main(){
 		cout<<i<<" "<<input[i]<<endl;
 	}
 	
-	//pad to 1536 characters 
+	//pad to 1536 (512*3) characters 
 	for(int i=1280; i<1536; i++){
 		binary = binary + '0';
 	}
+
+
 	binary[1280] = '1'; //add padding separator
 	//define message length of 1280
 	binary[1525] = '1';
@@ -326,6 +332,9 @@ int main(){
 			cout<<msg[i].block[j];
 		}
 	}
+	
+	cout<<endl;
+
 	//initialize message schedule
 	//Split block into 32 bit "words"
 	for(int i=0; i<16; i++){
@@ -342,13 +351,17 @@ int main(){
 				cout<<schedule[i].word[j];
 		}
 	}
+	
+	cout<<endl;
+
+//CHECK FROM HERE DOWN
 	populateShiftValues();
 	computeConstants();
 	computeInitialHashValues();
 	cout<<endl;
-	
-	//Fill out rest of message schedule
-	for(int i=16; i<64; i++){
+
+	//Fill out rest of message schedule (i<64)
+	for(int i=16; i<17; i++){
 		for(int j=0; j<32; j++){
 			binaryAddition[1].Data[j] = schedule[i-7].word[j];
 			binaryAddition[3].Data[j] = schedule[i-16].word[j];
@@ -367,19 +380,19 @@ int main(){
 			binaryAddition[2].Data[j] = Data[3].result[j];
 		}
 		//Print for sanity check
-		cout<<"One: ";
+		cout<<"One:    ";
 		for(int j=0; j<32; j++){
 			cout<<binaryAddition[0].Data[j];
 		}
-		cout<<endl<<"Two: ";
+		cout<<endl<<"Two:    ";
 		for(int j=0; j<32; j++){
 			cout<<binaryAddition[1].Data[j];
 		}
-		cout<<endl<<"Three: ";
+		cout<<endl<<"Three:  ";
 		for(int j=0; j<32; j++){
 			cout<<binaryAddition[2].Data[j];
 		}
-		cout<<endl<<"Four: ";
+		cout<<endl<<"Four:   ";
 		for(int j=0; j<32; j++){
 			cout<<binaryAddition[3].Data[j];
 		}
@@ -394,11 +407,11 @@ int main(){
 		}
 
 		//Print for sanity check
-		cout<<endl<<"Add1: ";
+		cout<<endl<<"Add1:   ";
 		for(int j=0; j<32; j++){
 			cout<<binaryAddition[4].Data[j];
 		}
-		cout<<endl<<"Add2: ";
+		cout<<endl<<"Add2:   ";
 		for(int j=0; j<32; j++){
 			cout<<binaryAddition[5].Data[j];
 		}
@@ -409,7 +422,7 @@ int main(){
 
 	}
 	cout<<endl;
-	
+/*
 	for(int i=0; i<64; i++){
 		cout<<i<<": ";
 		for(int j=0; j<32; j++){
@@ -417,7 +430,7 @@ int main(){
 		}
 		cout<<endl;
 	}
-	
+*/
 }
 void equationCompute(int equationNumber, int wordNumber){
 	int Order;
@@ -426,7 +439,7 @@ void equationCompute(int equationNumber, int wordNumber){
 	for(int i=0; i<2; i++){
 		RightShiftValue = Shift[equationNumber].Value[i];
 		Order = i;
-		rightShift(RightShiftValue, Order, wordNumber);
+		rightShift(RightShiftValue, Order, wordNumber, equationNumber);
 	}
 	Order = 2;
 	if(equationNumber == 0 | equationNumber == 1){
@@ -434,9 +447,12 @@ void equationCompute(int equationNumber, int wordNumber){
 		ShiftValue = Shift[equationNumber].Value[2];
 		shift(ShiftValue, Order, wordNumber);
 	}
+	
 	else{
-		RightShiftValue = Shift[equationNumber].Value[2];
-		rightShift(RightShiftValue, Order, wordNumber);
+		for(int i=0; i<3; i++){
+			RightShiftValue = Shift[equationNumber].Value[i];
+			rightShift(RightShiftValue, Order, wordNumber, equationNumber);
+		}
 	}
 	xortest();
 
@@ -450,14 +466,24 @@ void equationCompute(int equationNumber, int wordNumber){
 
 }
 
-void rightShift(int RightShiftValue, int Order, int wordNumber){
+void rightShift(int RightShiftValue, int Order, int wordNumber, int equationNumber){
 	//Right Shift based on RightShiftValue
 	for(int i=0; i<32; i++){
 		if((i+RightShiftValue)<32){
-			Data[Order].result[i+RightShiftValue]=schedule[wordNumber].word[i];
+			if (equationNumber == 0 | equationNumber == 1){
+				Data[Order].result[i+RightShiftValue]=schedule[wordNumber].word[i];
+			}
+			else{
+				Data[Order].result[i+RightShiftValue]=HashValues[4].WorkingValues[i];
+			}
 		}
 		else{
-			Data[Order].result[i-(32-RightShiftValue)]=schedule[wordNumber].word[i];
+			if (equationNumber == 0 | equationNumber == 1){
+				Data[Order].result[i-(32-RightShiftValue)]=schedule[wordNumber].word[i];
+			}
+			else{
+				Data[Order].result[i-(32-RightShiftValue)]=HashValues[4].WorkingValues[i];
+			}
 		}
 	}
 
@@ -481,7 +507,7 @@ void xortest(){
 			add = add + 1;
 		}
 		if(Data[2].result[i] == 1){
-			add = add + 1;
+			add = add + 1;	
 		}
 		if(add == 1 | add == 3){
 			Data[3].result[i] = 1;
