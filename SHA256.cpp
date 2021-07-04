@@ -21,9 +21,10 @@ struct equationShiftValues{
 	int Value[3];
 } Shift[4];
 struct ConstantValues{
-	double Original[64];
-	string Computed[64];
-}ConstantValues;
+	double Original;
+	string Computed;
+	int WorkingValues[32];
+}ConstantValues[64];
 struct HashValues{
 	double InitialValues;
 	int OriginalValues[32];
@@ -48,74 +49,74 @@ void populateShiftValues(){
 	Shift[3].Value[2] = 25;
 }
 void computeConstants(){
-	ConstantValues.Original[0] = cbrt(2);
-	ConstantValues.Original[1] = cbrt(3);
-	ConstantValues.Original[2] = cbrt(5);
-	ConstantValues.Original[3] = cbrt(7);
-	ConstantValues.Original[4] = cbrt(11); 
-	ConstantValues.Original[5] = cbrt(13);
-	ConstantValues.Original[6] = cbrt(17);
-	ConstantValues.Original[7] = cbrt(19);
-	ConstantValues.Original[8] = cbrt(23);
-	ConstantValues.Original[9] = cbrt(29);
-	ConstantValues.Original[10] = cbrt(31);
-	ConstantValues.Original[11] = cbrt(37);
-	ConstantValues.Original[12] = cbrt(41);
-	ConstantValues.Original[13] = cbrt(43);
-	ConstantValues.Original[14] = cbrt(47);
-	ConstantValues.Original[15] = cbrt(53);
-	ConstantValues.Original[16] = cbrt(59);
-	ConstantValues.Original[17] = cbrt(61);
-	ConstantValues.Original[18] = cbrt(67);
-	ConstantValues.Original[19] = cbrt(71);
-	ConstantValues.Original[20] = cbrt(73);
-	ConstantValues.Original[21] = cbrt(79);
-	ConstantValues.Original[22] = cbrt(83);
-	ConstantValues.Original[23] = cbrt(89);
-	ConstantValues.Original[24] = cbrt(97);
-	ConstantValues.Original[25] = cbrt(101);
-	ConstantValues.Original[26] = cbrt(103);
-	ConstantValues.Original[27] = cbrt(107);
-	ConstantValues.Original[28] = cbrt(109);
-	ConstantValues.Original[29] = cbrt(113);
-	ConstantValues.Original[30] = cbrt(127);
-	ConstantValues.Original[31] = cbrt(131);
-	ConstantValues.Original[32] = cbrt(137);
-	ConstantValues.Original[33] = cbrt(139);
-	ConstantValues.Original[34] = cbrt(149);
-	ConstantValues.Original[35] = cbrt(151);
-	ConstantValues.Original[36] = cbrt(157);
-	ConstantValues.Original[37] = cbrt(163);
-	ConstantValues.Original[38] = cbrt(167);
-	ConstantValues.Original[39] = cbrt(173);
-	ConstantValues.Original[40] = cbrt(179);
-	ConstantValues.Original[41] = cbrt(181);
-	ConstantValues.Original[42] = cbrt(191);
-	ConstantValues.Original[43] = cbrt(193);
-	ConstantValues.Original[44] = cbrt(197);
-	ConstantValues.Original[45] = cbrt(199);
-	ConstantValues.Original[46] = cbrt(211);
-	ConstantValues.Original[47] = cbrt(223);
-	ConstantValues.Original[48] = cbrt(227);
-	ConstantValues.Original[49] = cbrt(229);
-	ConstantValues.Original[50] = cbrt(233);
-	ConstantValues.Original[51] = cbrt(239);
-	ConstantValues.Original[52] = cbrt(241);
-	ConstantValues.Original[53] = cbrt(251);
-	ConstantValues.Original[54] = cbrt(257);
-	ConstantValues.Original[55] = cbrt(263);
-	ConstantValues.Original[56] = cbrt(269);
-	ConstantValues.Original[57] = cbrt(271);
-	ConstantValues.Original[58] = cbrt(277);
-	ConstantValues.Original[59] = cbrt(281);
-	ConstantValues.Original[60] = cbrt(283);
-	ConstantValues.Original[61] = cbrt(293);
-	ConstantValues.Original[62] = cbrt(307);
-	ConstantValues.Original[63] = cbrt(311);
+	ConstantValues[0].Original = cbrt(2);
+	ConstantValues[1].Original = cbrt(3);
+	ConstantValues[2].Original = cbrt(5);
+	ConstantValues[3].Original = cbrt(7);
+	ConstantValues[4].Original = cbrt(11); 
+	ConstantValues[5].Original = cbrt(13);
+	ConstantValues[6].Original = cbrt(17);
+	ConstantValues[7].Original = cbrt(19);
+	ConstantValues[8].Original = cbrt(23);
+	ConstantValues[9].Original = cbrt(29);
+	ConstantValues[10].Original = cbrt(31);
+	ConstantValues[11].Original = cbrt(37);
+	ConstantValues[12].Original = cbrt(41);
+	ConstantValues[13].Original = cbrt(43);
+	ConstantValues[14].Original = cbrt(47);
+	ConstantValues[15].Original = cbrt(53);
+	ConstantValues[16].Original = cbrt(59);
+	ConstantValues[17].Original = cbrt(61);
+	ConstantValues[18].Original = cbrt(67);
+	ConstantValues[19].Original = cbrt(71);
+	ConstantValues[20].Original = cbrt(73);
+	ConstantValues[21].Original = cbrt(79);
+	ConstantValues[22].Original = cbrt(83);
+	ConstantValues[23].Original = cbrt(89);
+	ConstantValues[24].Original = cbrt(97);
+	ConstantValues[25].Original = cbrt(101);
+	ConstantValues[26].Original = cbrt(103);
+	ConstantValues[27].Original = cbrt(107);
+	ConstantValues[28].Original = cbrt(109);
+	ConstantValues[29].Original = cbrt(113);
+	ConstantValues[30].Original = cbrt(127);
+	ConstantValues[31].Original = cbrt(131);
+	ConstantValues[32].Original = cbrt(137);
+	ConstantValues[33].Original = cbrt(139);
+	ConstantValues[34].Original = cbrt(149);
+	ConstantValues[35].Original = cbrt(151);
+	ConstantValues[36].Original = cbrt(157);
+	ConstantValues[37].Original = cbrt(163);
+	ConstantValues[38].Original = cbrt(167);
+	ConstantValues[39].Original = cbrt(173);
+	ConstantValues[40].Original = cbrt(179);
+	ConstantValues[41].Original = cbrt(181);
+	ConstantValues[42].Original = cbrt(191);
+	ConstantValues[43].Original = cbrt(193);
+	ConstantValues[44].Original = cbrt(197);
+	ConstantValues[45].Original = cbrt(199);
+	ConstantValues[46].Original = cbrt(211);
+	ConstantValues[47].Original = cbrt(223);
+	ConstantValues[48].Original = cbrt(227);
+	ConstantValues[49].Original = cbrt(229);
+	ConstantValues[50].Original = cbrt(233);
+	ConstantValues[51].Original = cbrt(239);
+	ConstantValues[52].Original = cbrt(241);
+	ConstantValues[53].Original = cbrt(251);
+	ConstantValues[54].Original = cbrt(257);
+	ConstantValues[55].Original = cbrt(263);
+	ConstantValues[56].Original = cbrt(269);
+	ConstantValues[57].Original = cbrt(271);
+	ConstantValues[58].Original = cbrt(277);
+	ConstantValues[59].Original = cbrt(281);
+	ConstantValues[60].Original = cbrt(283);
+	ConstantValues[61].Original = cbrt(293);
+	ConstantValues[62].Original = cbrt(307);
+	ConstantValues[63].Original = cbrt(311);
 	cout<<"Constant Values:"<<endl;
 	for(int i=0; i<64; i++){
-		int ConstantInteger = ConstantValues.Original[i];
-		double hex = (ConstantValues.Original[i] - ConstantInteger); //remove starting integer 
+		int ConstantInteger = ConstantValues[i].Original;
+		double hex = (ConstantValues[i].Original - ConstantInteger); //remove starting integer 
 		cout.precision(16);
 		int HexStore[8];
 		char input[8];
@@ -127,58 +128,67 @@ void computeConstants(){
 			//convert to binary
 			switch(HexStore[j]){
 				case 0:
-					ConstantValues.Computed[i] = ConstantValues.Computed[i] + "0000";
+					ConstantValues[i].Computed = ConstantValues[i].Computed + "0000";
 					break;
 				case 1:
-					ConstantValues.Computed[i] = ConstantValues.Computed[i] + "0001";
+					ConstantValues[i].Computed = ConstantValues[i].Computed + "0001";
 					break;
 				case 2:
-					ConstantValues.Computed[i] = ConstantValues.Computed[i] + "0010";
+					ConstantValues[i].Computed = ConstantValues[i].Computed + "0010";
 					break;
 				case 3:
-					ConstantValues.Computed[i] = ConstantValues.Computed[i] + "0011";
+					ConstantValues[i].Computed = ConstantValues[i].Computed + "0011";
 					break;
 				case 4:
-					ConstantValues.Computed[i] = ConstantValues.Computed[i] + "0100";
+					ConstantValues[i].Computed = ConstantValues[i].Computed + "0100";
 					break;
 				case 5:
-					ConstantValues.Computed[i] = ConstantValues.Computed[i] + "0101";
+					ConstantValues[i].Computed = ConstantValues[i].Computed + "0101";
 					break;
 				case 6:
-					ConstantValues.Computed[i] = ConstantValues.Computed[i] + "0110";
+					ConstantValues[i].Computed = ConstantValues[i].Computed + "0110";
 					break;
 				case 7:
-					ConstantValues.Computed[i] = ConstantValues.Computed[i] + "0111";
+					ConstantValues[i].Computed = ConstantValues[i].Computed + "0111";
 					break;
 				case 8:
-					ConstantValues.Computed[i] = ConstantValues.Computed[i] + "1000";
+					ConstantValues[i].Computed = ConstantValues[i].Computed + "1000";
 					break;
 				case 9:
-					ConstantValues.Computed[i] = ConstantValues.Computed[i] + "1001";
+					ConstantValues[i].Computed = ConstantValues[i].Computed + "1001";
 					break;
 				case 10:
-					ConstantValues.Computed[i] = ConstantValues.Computed[i] + "1010";
+					ConstantValues[i].Computed = ConstantValues[i].Computed + "1010";
 					break;
 				case 11:
-					ConstantValues.Computed[i] = ConstantValues.Computed[i] + "1011";
+					ConstantValues[i].Computed = ConstantValues[i].Computed + "1011";
 					break;
 				case 12:
-					ConstantValues.Computed[i] = ConstantValues.Computed[i] + "1100";
+					ConstantValues[i].Computed = ConstantValues[i].Computed + "1100";
 					break;
 				case 13:
-					ConstantValues.Computed[i] = ConstantValues.Computed[i] + "1101";
+					ConstantValues[i].Computed = ConstantValues[i].Computed + "1101";
 					break;
 				case 14:
-					ConstantValues.Computed[i] = ConstantValues.Computed[i] + "1110";
+					ConstantValues[i].Computed = ConstantValues[i].Computed + "1110";
 					break;
 				case 15:
-					ConstantValues.Computed[i] = ConstantValues.Computed[i] + "1111";
+					ConstantValues[i].Computed = ConstantValues[i].Computed + "1111";
 					break;
 			}
-
 		}
-		cout<<ConstantValues.Computed[i]<<" ";
-		cout<<endl;
+	//Convert string to int array
+	for(int j=0; j<32; j++){
+		if (ConstantValues[i].Computed[j] == '1'){
+			ConstantValues[i].WorkingValues[j] = 1;
+		}
+		else{
+			ConstantValues[i].WorkingValues[j] = 0;
+		}
+		//Print
+		cout<<ConstantValues[i].WorkingValues[j];
+	}
+	cout<<endl;
 	}
 }
 void computeInitialHashValues(){
@@ -214,7 +224,7 @@ void computeInitialHashValues(){
 		for(int j=loop; j<32; j++){
 			binary[j] = 0;
 		}
-		//reverse and convert to string
+		//reverse and convert to int array
 		for(int j=0; j<32; j++){
 			if(binary[31-j] == 1){
 				HashValues[i].WorkingValues[j] = 1;
@@ -439,7 +449,7 @@ int main(){
 			binaryAddition[i].Data[j] = 0;
 		}
 	}
-	int equationNumber = 2;
+	int equationNumber = 3;
 	equationCompute(equationNumber, 0);
 	for(int i=0; i<32; i++){
 		cout<<Data[3].result[i];
