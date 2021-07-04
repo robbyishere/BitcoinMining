@@ -16,6 +16,6 @@ void rightShift(int RightShiftValue, int Order, int wordNumber, int equationNumb
 void shift(int ShiftValue, int Order, int wordNumber);
 void xortest();
 void equationCompute(int equationNumber, int wordNumber);
-void binaryAdditionFunction(int inc);
+void binaryAdditionFunction();
 void majority();
 void choice();

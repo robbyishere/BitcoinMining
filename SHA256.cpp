@@ -32,7 +32,7 @@ struct HashValues{
 }HashValues[8];
 struct binaryAddition{
 	int Data[32];
-}binaryAddition[7];
+}binaryAddition[8];
 
 void populateShiftValues(){
 	Shift[0].Value[0] = 7;
@@ -408,22 +408,20 @@ int main(){
 			cout<<binaryAddition[3].Data[j];
 		}
 		
-		//Binary Addition
-		for(int j=0; j<3; j++){
-			binaryAdditionFunction(j);
-		}
+		binaryAdditionFunction();
+
 		for(int j=0; j<32; j++){
-			schedule[i].word[j] = binaryAddition[6].Data[j];
+			schedule[i].word[j] = binaryAddition[8].Data[j];
 		}
 
 		//Print for sanity check
 		cout<<endl<<"Add1:   ";
 		for(int j=0; j<32; j++){
-			cout<<binaryAddition[4].Data[j];
+			cout<<binaryAddition[5].Data[j];
 		}
 		cout<<endl<<"Add2:   ";
 		for(int j=0; j<32; j++){
-			cout<<binaryAddition[5].Data[j];
+			cout<<binaryAddition[6].Data[j];
 		}
 		cout<<endl<<"Result: ";
 		for(int j=0; j<32; j++){
@@ -443,18 +441,117 @@ int main(){
 	}
 	*/
 	
-	//Clear binaryAddition class, Might not be necessary?
-	for(int i=0; i<8; i++){
+	//Create temporary words for compression
+	int temp[32];
+	int temp1[32];
+	
+	int equationNumber = 3;
+	equationCompute(equationNumber, 0);
+	for(int i=0; i<32; i++){ //Change to j when looping
+		binaryAddition[0].Data[i] = Data[3].result[i];
+		binaryAddition[2].Data[i] = HashValues[7].WorkingValues[i];
+		binaryAddition[3].Data[i] = ConstantValues[0].WorkingValues[i];
+		binaryAddition[4].Data[i] = schedule[0].word[i];
+	}
+	choice();
+	binaryAdditionFunction();
+
+	cout<<"One:    ";
+	for(int i=0; i<32; i++){
+		cout<<binaryAddition[0].Data[i];
+	}
+	cout<<endl<<"Two:    ";
+	for(int i=0; i<32; i++){
+		cout<<binaryAddition[1].Data[i];
+	}
+	cout<<endl<<"Three:  ";
+	for(int i=0; i<32; i++){
+		cout<<binaryAddition[2].Data[i];
+	}
+	cout<<endl<<"Four:   ";
+	for(int i=0; i<32; i++){
+		cout<<binaryAddition[3].Data[i];
+	}
+	cout<<endl<<"Five:   ";
+	for(int i=0; i<32; i++){
+		cout<<binaryAddition[4].Data[i];
+	}
+	cout<<endl<<"Add1:   ";
+	for(int i=0; i<32; i++){
+		cout<<binaryAddition[5].Data[i];
+	}
+	cout<<endl<<"Add2:   ";
+	for(int i=0; i<32; i++){
+		cout<<binaryAddition[6].Data[i];
+	}
+	cout<<endl<<"Add3:   ";
+	for(int i=0; i<32; i++){
+		cout<<binaryAddition[7].Data[i];
+	}
+	cout<<endl<<"Result: ";
+	for(int i=0; i<32; i++){
+		cout<<binaryAddition[8].Data[i];
+	}
+	for(int i=0; i<32; i++){
+		temp[i] = binaryAddition[8].Data[i];
+	}
+	cout<<endl;
+	
+	//Clear binaryAddition class
+	for(int i=0; i<9; i++){
 		for(int j=0; j<32; j++){
 			binaryAddition[i].Data[j] = 0;
 		}
 	}
-	int equationNumber = 3;
+	equationNumber = 2;
 	equationCompute(equationNumber, 0);
 	for(int i=0; i<32; i++){
-		cout<<Data[3].result[i];
+		binaryAddition[0].Data[i] = Data[3].result[i];
 	}
-
+	majority();
+	binaryAdditionFunction();
+	cout<<"One:    ";
+	for(int i=0; i<32; i++){
+		cout<<binaryAddition[0].Data[i];
+	}
+	cout<<endl<<"Two:    ";
+	for(int i=0; i<32; i++){
+		cout<<binaryAddition[1].Data[i];
+	}
+	cout<<endl<<"Result: ";
+	for(int i=0; i<32; i++){
+		temp1[i] = binaryAddition[8].Data[i];
+		cout<<temp1[i];
+	}
+	cout<<endl;
+	
+	//Compression
+	//Move Hash Values down 1
+	for(int i=7; i>0; i--){
+		for(int j=0; j<32; j++){
+			HashValues[i].WorkingValues[j] = HashValues[i-1].WorkingValues[j];
+		}
+	}
+	//Binary Add temp and temp1 
+	for(int i=0; i<32; i++){
+		binaryAddition[0].Data[i] = temp[i];
+		binaryAddition[1].Data[i] = temp1[i];
+	}
+	binaryAdditionFunction();
+	
+	//Make Binary Addition result the first hash value
+	for(int i=0; i<32; i++){
+		HashValues[0].WorkingValues[i] = binaryAddition[8].Data[i];
+	}
+	
+	//Print for sanity pls
+	cout<<"Working Hash Values"<<endl;
+	for(int i=0; i<8; i++){
+		for(int j=0; j<32; j++){
+			cout<<HashValues[i].WorkingValues[j];
+		}
+		cout<<endl;
+	}
 }
 void equationCompute(int equationNumber, int wordNumber){
 	int Order;
@@ -498,10 +595,10 @@ void rightShift(int RightShiftValue, int Order, int wordNumber, int equationNumb
 				Data[Order].result[i+RightShiftValue]=schedule[wordNumber].word[i];
 			}
 			if (equationNumber == 2){
-				Data[Order].result[i+RightShiftValue]=HashValues[4].WorkingValues[i];
+				Data[Order].result[i+RightShiftValue]=HashValues[0].WorkingValues[i];
 			}
 			if (equationNumber == 3){
-				Data[Order].result[i+RightShiftValue]=HashValues[0].WorkingValues[i];
+				Data[Order].result[i+RightShiftValue]=HashValues[4].WorkingValues[i];
 			}
 		}
 		else{
@@ -509,10 +606,10 @@ void rightShift(int RightShiftValue, int Order, int wordNumber, int equationNumb
 				Data[Order].result[i-(32-RightShiftValue)]=schedule[wordNumber].word[i];
 			}
 			if (equationNumber == 2){
-				Data[Order].result[i-(32-RightShiftValue)]=HashValues[4].WorkingValues[i];
+				Data[Order].result[i-(32-RightShiftValue)]=HashValues[0].WorkingValues[i];
 			}
 			if (equationNumber == 3){
-				Data[Order].result[i-(32-RightShiftValue)]=HashValues[0].WorkingValues[i];
+				Data[Order].result[i-(32-RightShiftValue)]=HashValues[4].WorkingValues[i];
 			}
 		}
 	}
@@ -547,24 +644,34 @@ void xortest(){
 		}
 	}
 }
-void binaryAdditionFunction(int inc){
-	int carry = 0;
-		for(int i=0; i<32; i++){
-			if(binaryAddition[0 + (inc*2)].Data[31-i] + binaryAddition[1 + (inc*2)].Data[31-i] + carry == 0){
-				binaryAddition[4 + inc].Data[31-i] = 0;
+
+//Try to find a way to improve this
+/*
+0 + 1 stores in 5
+2 + 3 stores in 6
+4 + 5 stores in 7
+6 + 7 stores in 8
+*/
+void binaryAdditionFunction(){
+	for(int i=0; i<4; i++){
+		int carry = 0;
+		for(int j=0; j<32; j++){
+			if(binaryAddition[0 + (i*2)].Data[31-j] + binaryAddition[1 + (i*2)].Data[31-j] + carry == 0){
+				binaryAddition[5 + i].Data[31-j] = 0;
 			}
-			if(binaryAddition[0 + (inc*2)].Data[31-i] + binaryAddition[1 + (inc*2)].Data[31-i] + carry == 1){
-				binaryAddition[4 + inc].Data[31-i] = 1;
+			if(binaryAddition[0 + (i*2)].Data[31-j] + binaryAddition[1 + (i*2)].Data[31-j] + carry == 1){
+				binaryAddition[5 + i].Data[31-j] = 1;
 				carry = 0;
 			}
-			if(binaryAddition[0 + (inc*2)].Data[31-i] + binaryAddition[1 + (inc*2)].Data[31-i] + carry == 3){
-				binaryAddition[4 + inc].Data[31-i] = 1;
+			if(binaryAddition[0 + (i*2)].Data[31-j] + binaryAddition[1 + (i*2)].Data[31-j] + carry == 3){
+				binaryAddition[5 + i].Data[31-j] = 1;
 				carry = 1;
 			}
-			if(binaryAddition[0 + (inc*2)].Data[31-i] + binaryAddition[1 + (inc*2)].Data[31-i] + carry == 2){
-				binaryAddition[4 + inc].Data[31-i] = 0;
+			if(binaryAddition[0 + (i*2)].Data[31-j] + binaryAddition[1 + (i*2)].Data[31-j] + carry == 2){
+				binaryAddition[5 + i].Data[31-j] = 0;
 				carry = 1;
 			}
+		}
 	}
 }
 
