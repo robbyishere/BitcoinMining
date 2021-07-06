@@ -1,5 +1,6 @@
 //TODO:
 //Fix incorrect output
+//Improve binaryAdditionFunction
 
 #include "SHA256.h"
 int temp[32];
@@ -439,7 +440,7 @@ int main(){
 			//Create temporary words for compression
 			equationNumber = 3;
 			equationCompute(equationNumber, 0, i);
-			for(int k=0; k<32; k++){ //Change to j when looping
+			for(int k=0; k<32; k++){
 				binaryAddition[0].Data[k] = Data[3].result[k];
 				binaryAddition[2].Data[k] = HashValues[7].WorkingValues[k];
 				binaryAddition[3].Data[k] = ConstantValues[j].WorkingValues[k];
@@ -669,6 +670,8 @@ void xortest(){
 }
 
 //Try to find a way to improve this
+//We need to calculate 2,4, and 5 equations
+//Maybe subtract 1/2 from `i<4` in line 681 and `binaryAddition[5+i]`? when needed?
 /*
 0 + 1 stores in 5
 2 + 3 stores in 6
