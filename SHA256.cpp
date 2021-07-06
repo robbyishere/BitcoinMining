@@ -1,6 +1,6 @@
 //TODO:
-//Compute all 3 message blocks
-//Compute final hash
+//Fix incorrect output
+
 #include "SHA256.h"
 int temp[32];
 int temp1[32];
@@ -374,7 +374,6 @@ int main(){
 			for(int k=0; k<32; k++){
 				binaryAddition[1].Data[k] = schedule[i][j-7].word[k];
 				binaryAddition[3].Data[k] = schedule[i][j-16].word[k];
-				binaryAddition[4].Data[k] = 0;
 			}
 			int wordNumber = j-2;
 			int equationNumber = 1;
@@ -427,16 +426,14 @@ int main(){
 			}
 			cout<<endl<<endl;
 
-		/*
+		}
 		//Print words after modification
-		for(int i=0; i<64; i++){
-			cout<<i<<": ";
-			for(int j=0; j<32; j++){
-				cout<<schedule[i].word[j];
+		for(int j=0; j<64; j++){
+			cout<<j<<": ";
+			for(int k=0; k<32; k++){
+				cout<<schedule[i][j].word[k];
 			}
 			cout<<endl;
-		}
-		*/
 		}
 		for(int j=0; j<64; j++){
 			//Create temporary words for compression
@@ -537,17 +534,48 @@ int main(){
 			for(int k=0; k<32; k++){
 				HashValues[0].WorkingValues[k] = binaryAddition[8].Data[k];
 			}
-			
-			//Print for sanity pls
-			cout<<"Working Hash Values"<<endl;
-			for(int k=0; k<8; k++){
-				for(int l=0; l<32; l++){
-					cout<<HashValues[k].WorkingValues[l];
-				}
+			//Binary Add temp to HashValues[4]
+			for(int k=0; k<32; k++){
+				binaryAddition[0].Data[k] = temp[k];
+				binaryAddition[1].Data[k] = HashValues[4].WorkingValues[k];
+			}
+			binaryAdditionFunction();
+			for(int k=0; k<32; k++){
+				HashValues[4].WorkingValues[k] = binaryAddition[8].Data[k];
 			}
 		}
+
+		cout<<"Original Hash Values"<<endl;
+		for(int j=0; j<8; j++){
+			for(int k=0; k<32; k++){
+				cout<<HashValues[j].OriginalValues[k];
+			}
+			cout<<endl;
+		}
 		cout<<endl;
-	}	
+		//Add Working Hash Values to Original Hash Values
+		for(int j=0; j<8; j++){
+			for(int k=0; k<32; k++){
+				binaryAddition[0].Data[k] = HashValues[j].OriginalValues[k];
+				binaryAddition[1].Data[k] = HashValues[j].WorkingValues[k];
+			}
+			binaryAdditionFunction();
+			for(int k=0; k<32; k++){
+				HashValues[j].OriginalValues[k] = binaryAddition[8].Data[k];
+				HashValues[j].WorkingValues[k] = binaryAddition[8].Data[k];
+			}
+		}
+		//Print for sanity pls
+		cout<<"Working Hash Values"<<endl;
+		for(int j=0; j<8; j++){
+			for(int k=0; k<32; k++){
+				cout<<HashValues[j].WorkingValues[k];
+			}
+			//cout<<endl;
+		}
+		cout<<endl;
+
+	}
 }
 void equationCompute(int equationNumber, int wordNumber, int blockNumber){
 	int Order;
@@ -556,7 +584,7 @@ void equationCompute(int equationNumber, int wordNumber, int blockNumber){
 	for(int i=0; i<2; i++){
 		RightShiftValue = Shift[equationNumber].Value[i];
 		Order = i;
-		rightShift(RightShiftValue, Order, wordNumber, equationNumber, blockNumber);
+		rightShift(RightShiftValue, Order, equationNumber, wordNumber, blockNumber);
 	}
 	Order = 2;
 	if(equationNumber == 0 | equationNumber == 1){
@@ -568,7 +596,7 @@ void equationCompute(int equationNumber, int wordNumber, int blockNumber){
 	else{
 		for(int i=0; i<3; i++){
 			RightShiftValue = Shift[equationNumber].Value[i];
-			rightShift(RightShiftValue, Order, wordNumber, equationNumber, blockNumber);
+			rightShift(RightShiftValue, Order, equationNumber, wordNumber, blockNumber);
 		}
 	}
 	xortest();
@@ -609,7 +637,6 @@ void rightShift(int RightShiftValue, int Order, int equationNumber, int wordNumb
 			}
 		}
 	}
-
 }
 void shift(int ShiftValue, int Order, int wordNumber, int blockNumber){
 	//Shift based on ShiftValue
