@@ -1,6 +1,5 @@
 //TODO:
-//Make binaryToHex converter for displaying output hash
-//Change hexToBinary to convert to 4 digit binary
+//Calculate second hash
 //Make ConstantValues and HashValues shortcut
 //Improve binaryAdditionFunction
 
@@ -301,52 +300,52 @@ string hexToBinary(char input[], int characterCount){
 	for(int i=0; i<characterCount; i++){
 		switch(input[i]){ 
 			case 'a':
-				result = result + "01100001";
+				result = result + "1010";
 				break;
 			case 'b':
-				result = result + "01100010";
+				result = result + "1011";
 				break;
 			case 'c':
-				result = result + "01100011";
+				result = result + "1100";
 				break;
 			case 'd':
-				result = result + "01100100";
+				result = result + "1101";
 				break;
 			case 'e':
-				result = result + "01100101";
+				result = result + "1110";
 				break;
 			case 'f':
-				result = result + "01100110";
+				result = result + "1111";
 				break;
 			case '0':
-				result = result + "00110000";	
+				result = result + "0000";	
 				break;
 			case '1':
-				result = result + "00110001";	
+				result = result + "0001";	
 				break;
 			case '2':
-				result = result + "00110010";	
+				result = result + "0010";	
 				break;
 			case '3':
-				result = result + "00110011";	
+				result = result + "0011";	
 				break;
 			case '4':
-				result = result + "00110100";	
+				result = result + "0100";	
 				break;
 			case '5':
-				result = result + "00110101";	
+				result = result + "0101";	
 				break;
 			case '6':
-				result = result + "00110110";	
+				result = result + "0110";	
 				break;
 			case '7':
-				result = result + "00110111";	
+				result = result + "0111";	
 				break;
 			case '8':
-				result = result + "00111000";	
+				result = result + "1000";	
 				break;
 			case '9':
-				result = result + "00111001";	
+				result = result + "1001";	
 				break;
 		}
 	}
@@ -366,16 +365,16 @@ int main(){
 		cout<<i<<" "<<input[i]<<endl;
 	}
 	
-	//pad to 1536 (512*3) characters 
-	for(int i=1280; i<1536; i++){
+	//pad to 1024 (512*2) characters 
+	for(int i=640; i<1024; i++){
 		binary = binary + '0';
 	}
 
 
-	binary[1280] = '1'; //add padding separator
-	//define message length of 1280
-	binary[1525] = '1';
-	binary[1527] = '1';
+	binary[640] = '1'; //add padding separator
+	//define message length of 640
+	binary[1016] = '1';
+	binary[1014] = '1';
 
 	//print binary conversion for sanity check
 	cout<<endl<<"Message:"<<endl<<binary<<endl;
@@ -403,8 +402,8 @@ int main(){
 	populateShiftValues();
 	computeConstants();
 	computeInitialHashValues();
-	//Loop for every block (i<3)
-	for(int i=0; i<3; i++){
+	//Loop for every block (i<2)
+	for(int i=0; i<2; i++){
 		int temp[32];
 		int temp1[32];
 		int equationNumber;
