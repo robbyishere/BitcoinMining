@@ -10,6 +10,7 @@ using std::string;
 void populateShiftValues();
 void computeConstants();
 void computeInitialHashValues();
+string binaryToHex(string output[]);
 string hexToBinary(char input[], int characterCount);
 void convertToBinary(int current);
 void rightShift(int RightShiftValue, int Order, int equationNumber, int wordNumber, int blockNumber);

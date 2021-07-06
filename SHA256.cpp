@@ -1,11 +1,11 @@
 //TODO:
-//Fix incorrect output
+//Make binaryToHex converter for displaying output hash
+//Change hexToBinary to convert to 4 digit binary
+//Make ConstantValues and HashValues shortcut
 //Improve binaryAdditionFunction
 
 #include "SHA256.h"
-int temp[32];
-int temp1[32];
-int equationNumber;
+
 struct messageBlocks{
 	int block[512];
 } msg[3];
@@ -114,7 +114,7 @@ void computeConstants(){
 	ConstantValues[61].Original = cbrt(293);
 	ConstantValues[62].Original = cbrt(307);
 	ConstantValues[63].Original = cbrt(311);
-	cout<<"Constant Values:"<<endl;
+	//cout<<"Constant Values:"<<endl;
 	for(int i=0; i<64; i++){
 		int ConstantInteger = ConstantValues[i].Original;
 		double hex = (ConstantValues[i].Original - ConstantInteger); //remove starting integer 
@@ -186,10 +186,9 @@ void computeConstants(){
 		else{
 			ConstantValues[i].WorkingValues[j] = 0;
 		}
-		//Print
-		cout<<ConstantValues[i].WorkingValues[j];
+		//cout<<ConstantValues[i].WorkingValues[j];
 	}
-	cout<<endl;
+	//cout<<endl;
 	}
 }
 void computeInitialHashValues(){
@@ -202,7 +201,7 @@ void computeInitialHashValues(){
 	HashValues[6].InitialValues = sqrt(17);
 	HashValues[7].InitialValues = sqrt(19);
 	int InitialInteger;
-	cout<<"Initial Hash Values:"<<endl;
+	//cout<<"Initial Hash Values:"<<endl;
 	for(int i=0; i<8; i++){
 		InitialInteger = HashValues[i].InitialValues;
 		int binary[32];
@@ -237,12 +236,66 @@ void computeInitialHashValues(){
 		
 		for(int j=0; j<32; j++){
 			HashValues[i].OriginalValues[j] = HashValues[i].WorkingValues[j]; //duplicate values
-			cout<<HashValues[i].WorkingValues[j];	
+			//cout<<HashValues[i].WorkingValues[j];	
 		}
-		cout<<endl;
+		//cout<<endl;
 		}
 
 	}
+string binaryToHex(string output[]){
+	string result;
+	for(int i=0; i<64; i++){
+		if(output[i] == "0000"){
+			result = result + '0';
+		}
+		if(output[i] == "0001"){
+				result = result + '1';
+		}
+		if(output[i] == "0010"){
+				result = result + '2';
+		}
+		if(output[i] == "0011"){
+				result = result + '3';
+		}
+		if(output[i] == "0100"){
+				result = result + '4';
+		}
+		if(output[i] == "0101"){
+				result = result + '5';
+		}
+		if(output[i] == "0110"){
+				result = result + '6';
+		}
+		if(output[i] == "0111"){
+				result = result + '7';
+		}
+		if(output[i] == "1000"){
+				result = result + '8';
+		}
+		if(output[i] == "1001"){
+				result = result + '9';
+		}
+		if(output[i] == "1010"){
+				result = result + 'a';
+		}
+		if(output[i] == "1011"){
+				result = result + 'b';
+		}
+		if(output[i] == "1100"){
+				result = result + 'c';
+		}
+		if(output[i] == "1101"){
+				result = result + 'd';
+		}
+		if(output[i] == "1110"){
+				result = result + 'e';
+		}
+		if(output[i] == "1111"){
+				result = result + 'f';
+		}
+	}
+	return result;
+}
 string hexToBinary(char input[], int characterCount){
 	string result;
 	for(int i=0; i<characterCount; i++){
@@ -352,7 +405,9 @@ int main(){
 	computeInitialHashValues();
 	//Loop for every block (i<3)
 	for(int i=0; i<3; i++){
-		
+		int temp[32];
+		int temp1[32];
+		int equationNumber;
 		//initialize message schedule
 		//Split block into 32 bit "words"
 		for(int j=0; j<16; j++){
@@ -360,6 +415,7 @@ int main(){
 				schedule[i][j].word[k-32*j] = msg[i].block[k];
 			}
 		}
+		/*
 		//Print out words for sanity check
 		cout<<endl<<endl<<"msgBLK"<<i<<": ";
 		for(int j=0; j<16; j++){
@@ -369,6 +425,7 @@ int main(){
 			}
 		}
 		cout<<endl;
+		*/
 
 		//Fill out rest of message schedule (i<64)
 		for(int j=16; j<64; j++){
@@ -377,7 +434,7 @@ int main(){
 				binaryAddition[3].Data[k] = schedule[i][j-16].word[k];
 			}
 			int wordNumber = j-2;
-			int equationNumber = 1;
+			equationNumber = 1;
 			equationCompute(equationNumber, wordNumber, i);
 			for(int k=0; k<32; k++){
 				binaryAddition[0].Data[k] = Data[3].result[k];
@@ -388,6 +445,7 @@ int main(){
 			for(int k=0; k<32; k++){
 				binaryAddition[2].Data[k] = Data[3].result[k];
 			}
+			/*
 			//Print for sanity check
 			cout<<"One:    ";
 			for(int k=0; k<32; k++){
@@ -405,13 +463,13 @@ int main(){
 			for(int k=0; k<32; k++){
 				cout<<binaryAddition[3].Data[k];
 			}
-			
+			*/
 			binaryAdditionFunction();
 
 			for(int k=0; k<32; k++){
 				schedule[i][j].word[k] = binaryAddition[8].Data[k];
 			}
-
+			/*
 			//Print for sanity check
 			cout<<endl<<"Add1:   ";
 			for(int k=0; k<32; k++){
@@ -426,7 +484,7 @@ int main(){
 				cout<<schedule[i][j].word[k];
 			}
 			cout<<endl<<endl;
-
+			
 		}
 		//Print words after modification
 		for(int j=0; j<64; j++){
@@ -435,7 +493,9 @@ int main(){
 				cout<<schedule[i][j].word[k];
 			}
 			cout<<endl;
+		*/			
 		}
+
 		for(int j=0; j<64; j++){
 			//Create temporary words for compression
 			equationNumber = 3;
@@ -448,6 +508,7 @@ int main(){
 			}
 			choice();
 			binaryAdditionFunction();
+			/*
 			cout<<"One:    ";
 			for(int k=0; k<32; k++){
 				cout<<binaryAddition[0].Data[k];
@@ -484,10 +545,11 @@ int main(){
 			for(int k=0; k<32; k++){
 				cout<<binaryAddition[8].Data[k];
 			}
+			*/
 			for(int k=0; k<32; k++){
 				temp[k] = binaryAddition[8].Data[k];
 			}
-			cout<<endl;
+			//cout<<endl;
 
 			//Clear binaryAddition class
 			for(int k=0; k<9; k++){
@@ -502,6 +564,7 @@ int main(){
 			}
 			majority();
 			binaryAdditionFunction();
+			/*
 			cout<<"One:    ";
 			for(int k=0; k<32; k++){
 				cout<<binaryAddition[0].Data[k];
@@ -511,12 +574,13 @@ int main(){
 				cout<<binaryAddition[1].Data[k];
 			}
 			cout<<endl<<"Result: ";
+			*/
 			for(int k=0; k<32; k++){
 				temp1[k] = binaryAddition[8].Data[k];
-				cout<<temp1[k];
+				//cout<<temp1[k];
 			}
-			cout<<endl;
-			
+			//cout<<endl;
+
 			//Compression
 			//Move Hash Values down 1
 			for(int k=7; k>0; k--){
@@ -545,7 +609,7 @@ int main(){
 				HashValues[4].WorkingValues[k] = binaryAddition[8].Data[k];
 			}
 		}
-
+		/*
 		cout<<"Original Hash Values"<<endl;
 		for(int j=0; j<8; j++){
 			for(int k=0; k<32; k++){
@@ -554,6 +618,7 @@ int main(){
 			cout<<endl;
 		}
 		cout<<endl;
+		*/
 		//Add Working Hash Values to Original Hash Values
 		for(int j=0; j<8; j++){
 			for(int k=0; k<32; k++){
@@ -577,6 +642,30 @@ int main(){
 		cout<<endl;
 
 	}
+	cout<<endl;
+	//Convert output from binary to hex
+	string output[64];
+	int Word = 0;
+	int Value = 0;
+	//Combine WorkingValues and split into 64 chunks, 4-bit string
+	for(int i=0; i<64; i++){
+		for(int j=0; j<4; j++){
+			if(HashValues[Word].WorkingValues[Value] == 1){
+				output[i] = output[i] + '1';
+			}
+			else{
+				output[i] = output[i] + '0';
+			}
+		if(Value == 31){
+			Value = 0;
+			Word++;
+		}		
+		else{
+			Value++;
+		}
+		}
+	}
+	cout<<binaryToHex(output)<<endl;
 }
 //4 Types of equations that needs to be computed
 //Equations 0 and 1 needs two right shifts and a normal shift
@@ -605,6 +694,8 @@ void equationCompute(int equationNumber, int wordNumber, int blockNumber){
 	}
 	xortest();
 
+	/*
+	//Print Data Class
 	for(int i=0; i<4; i++){
 		cout<<endl<<i<<": ";
 		for(int j=0; j<32; j++){
@@ -612,6 +703,7 @@ void equationCompute(int equationNumber, int wordNumber, int blockNumber){
 		}
 		cout<<endl;
 	}
+	*/
 
 }
 
