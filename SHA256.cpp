@@ -266,34 +266,34 @@ string hexToBinary(char input[], int characterCount){
 				result = result + "01100110";
 				break;
 			case '0':
-				result = result + "00000000";	
+				result = result + "00110000";	
 				break;
 			case '1':
-				result = result + "00000001";	
+				result = result + "00110001";	
 				break;
 			case '2':
-				result = result + "00000010";	
+				result = result + "00110010";	
 				break;
 			case '3':
-				result = result + "00000011";	
+				result = result + "00110011";	
 				break;
 			case '4':
-				result = result + "00000100";	
+				result = result + "00110100";	
 				break;
 			case '5':
-				result = result + "00000101";	
+				result = result + "00110101";	
 				break;
 			case '6':
-				result = result + "00000110";	
+				result = result + "00110110";	
 				break;
 			case '7':
-				result = result + "00000111";	
+				result = result + "00110111";	
 				break;
 			case '8':
-				result = result + "00001000";	
+				result = result + "00111000";	
 				break;
 			case '9':
-				result = result + "00001001";	
+				result = result + "00111001";	
 				break;
 		}
 	}
@@ -578,6 +578,9 @@ int main(){
 
 	}
 }
+//4 Types of equations that needs to be computed
+//Equations 0 and 1 needs two right shifts and a normal shift
+//Eauations 2 and 3 needs three right shifts
 void equationCompute(int equationNumber, int wordNumber, int blockNumber){
 	int Order;
 	int RightShiftValue = 0;
@@ -671,7 +674,7 @@ void xortest(){
 
 //Try to find a way to improve this
 //We need to calculate 2,4, and 5 equations
-//Maybe subtract 1/2 from `i<4` in line 681 and `binaryAddition[5+i]`? when needed?
+//Maybe subtract 1/2 from `i<4` in the for loop and `binaryAddition[5+i]`? when needed?
 /*
 0 + 1 stores in 5
 2 + 3 stores in 6
