@@ -557,6 +557,8 @@ int main(){
 			string temp1;
 			temp = binaryToHex(output);
 			//Convert little endian to hex
+			//For every two characters, swap them
+			//Then reverse the whole string
 			for(int j=32; j>0; j--){
 				for(int k=2; k>0; k--){
 					temp1 = temp1 + temp[((j*2)-k)];
