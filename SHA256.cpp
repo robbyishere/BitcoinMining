@@ -113,7 +113,6 @@ void computeConstants(){
 	ConstantValues[61].Original = cbrt(293);
 	ConstantValues[62].Original = cbrt(307);
 	ConstantValues[63].Original = cbrt(311);
-	//cout<<"Constant Values:"<<endl;
 	for(int i=0; i<64; i++){
 		int ConstantInteger = ConstantValues[i].Original;
 		double hex = (ConstantValues[i].Original - ConstantInteger); //remove starting integer 
@@ -185,9 +184,7 @@ void computeConstants(){
 		else{
 			ConstantValues[i].WorkingValues[j] = 0;
 		}
-		//cout<<ConstantValues[i].WorkingValues[j];
 	}
-	//cout<<endl;
 	}
 }
 void computeInitialHashValues(){
@@ -200,7 +197,6 @@ void computeInitialHashValues(){
 	HashValues[6].InitialValues = sqrt(17);
 	HashValues[7].InitialValues = sqrt(19);
 	int InitialInteger;
-	//cout<<"Initial Hash Values:"<<endl;
 	for(int i=0; i<8; i++){
 		InitialInteger = HashValues[i].InitialValues;
 		int binary[32];
@@ -235,9 +231,7 @@ void computeInitialHashValues(){
 		
 		for(int j=0; j<32; j++){
 			HashValues[i].OriginalValues[j] = HashValues[i].WorkingValues[j]; //duplicate values
-			//cout<<HashValues[i].WorkingValues[j];	
 		}
-		//cout<<endl;
 		}
 
 	}
@@ -356,19 +350,11 @@ int main(){
 	char input[161];
 	cout<<"Enter the block header: ";
 	cin.getline(input,161);
-	//cout<<"Character Count: "<<cin.gcount()<<endl;
 	
 	for(int i=0; i<2; i++){
 	
 		int characterCount = cin.gcount(); //Make sure on second loop, character count is correct
 		string binary = hexToBinary(input, characterCount);
-
-		/*
-		//print input for sanity check
-		for(int j=0; j<cin.gcount()-1; j++){
-			cout<<j<<" "<<input[j]<<endl;
-		}
-		*/
 		
 		//pad to 1024 (512*2) characters or 512 characters 
 		int pad;
@@ -384,7 +370,7 @@ int main(){
 		for(int j=pad; j<maxLength; j++){
 			binary = binary + '0';
 		}
-		
+
 		//add padding separator and define message length
 		if(i==0){
 			binary[640] = '1'; //separator
@@ -396,11 +382,6 @@ int main(){
 			binary[256] = '1'; //separator
 			binary[503] = '1'; //message length
 		}
-
-		/*
-		//print binary conversion for sanity check
-		cout<<endl<<"Message:"<<endl<<binary<<endl;
-		*/
 
 		//Splitting message into 512 bit message blocks and convert from string to int
 		int blockCount;
@@ -420,16 +401,6 @@ int main(){
 				}
 			}
 		}
-		/*
-		//print msgBLKs for sanity check
-		for(int j=0; j<blockCount; j++){
-			cout<<endl<<"msgBLK"<<j<<":"<<endl;
-			for(int k=0; k<512; k++){
-				cout<<msg[j].block[k];
-			}
-		}		
-		cout<<endl;
-		*/
 		populateShiftValues();
 		computeConstants();
 		computeInitialHashValues();
@@ -445,18 +416,6 @@ int main(){
 					schedule[j][k].word[m-32*k] = msg[j].block[m];
 				}
 			}
-			/*
-			//Print out words for sanity check
-			cout<<endl<<endl<<"msgBLK"<<i<<": ";
-			for(int j=0; j<16; j++){
-				cout<<endl<<"Word "<<j<<": ";
-				for(int k=0; k<32; k++){
-						cout<<schedule[i][j].word[k];
-				}
-			}
-			cout<<endl;
-			*/
-
 			//Fill out rest of message schedule (i<64)
 			for(int k=16; k<64; k++){
 				for(int m=0; m<32; m++){
@@ -475,55 +434,10 @@ int main(){
 				for(int m=0; m<32; m++){
 					binaryAddition[2].Data[m] = Data[3].result[m];
 				}
-				/*
-				//Print for sanity check
-				cout<<"One:    ";
-				for(int k=0; k<32; k++){
-					cout<<binaryAddition[0].Data[k];
-				}
-				cout<<endl<<"Two:    ";
-				for(int k=0; k<32; k++){
-					cout<<binaryAddition[1].Data[k];
-				}
-				cout<<endl<<"Three:  ";
-				for(int k=0; k<32; k++){
-					cout<<binaryAddition[2].Data[k];
-				}
-				cout<<endl<<"Four:   ";
-				for(int k=0; k<32; k++){
-					cout<<binaryAddition[3].Data[k];
-				}
-				*/
 				binaryAdditionFunction();
-
 				for(int m=0; m<32; m++){
 					schedule[j][k].word[m] = binaryAddition[8].Data[m];
-				}
-				/*
-				//Print for sanity check
-				cout<<endl<<"Add1:   ";
-				for(int k=0; k<32; k++){
-					cout<<binaryAddition[5].Data[k];
-				}
-				cout<<endl<<"Add2:   ";
-				for(int k=0; k<32; k++){
-					cout<<binaryAddition[6].Data[k];
-				}
-				cout<<endl<<"Result: ";
-				for(int k=0; k<32; k++){
-					cout<<schedule[i][j].word[k];
-				}
-				cout<<endl<<endl;
-				
-			}
-			//Print words after modification
-			for(int j=0; j<64; j++){
-				cout<<j<<": ";
-				for(int k=0; k<32; k++){
-					cout<<schedule[i][j].word[k];
-				}
-				cout<<endl;
-			*/			
+				}			
 			}
 
 			for(int k=0; k<64; k++){
@@ -538,48 +452,10 @@ int main(){
 				}
 				choice();
 				binaryAdditionFunction();
-				/*
-				cout<<"One:    ";
-				for(int k=0; k<32; k++){
-					cout<<binaryAddition[0].Data[k];
-				}
-				cout<<endl<<"Two:    ";
-				for(int k=0; k<32; k++){
-					cout<<binaryAddition[1].Data[k];
-				}
-				cout<<endl<<"Three:  ";
-				for(int k=0; k<32; k++){
-					cout<<binaryAddition[2].Data[k];
-				}
-				cout<<endl<<"Four:   ";
-				for(int k=0; k<32; k++){
-					cout<<binaryAddition[3].Data[k];
-				}
-				cout<<endl<<"Five:   ";
-				for(int k=0; k<32; k++){
-					cout<<binaryAddition[4].Data[k];
-				}
-				cout<<endl<<"Add1:   ";
-				for(int k=0; k<32; k++){
-					cout<<binaryAddition[5].Data[k];
-				}
-				cout<<endl<<"Add2:   ";
-				for(int k=0; k<32; k++){
-					cout<<binaryAddition[6].Data[k];
-				}
-				cout<<endl<<"Add3:   ";
-				for(int k=0; k<32; k++){
-					cout<<binaryAddition[7].Data[k];
-				}
-				cout<<endl<<"Result: ";
-				for(int k=0; k<32; k++){
-					cout<<binaryAddition[8].Data[k];
-				}
-				*/
+
 				for(int m=0; m<32; m++){
 					temp[m] = binaryAddition[8].Data[m];
 				}
-				//cout<<endl;
 
 				//Clear binaryAddition class
 				for(int m=0; m<9; m++){
@@ -594,22 +470,10 @@ int main(){
 				}
 				majority();
 				binaryAdditionFunction();
-				/*
-				cout<<"One:    ";
-				for(int k=0; k<32; k++){
-					cout<<binaryAddition[0].Data[k];
-				}
-				cout<<endl<<"Two:    ";
-				for(int k=0; k<32; k++){
-					cout<<binaryAddition[1].Data[k];
-				}
-				cout<<endl<<"Result: ";
-				*/
+
 				for(int m=0; m<32; m++){
 					temp1[m] = binaryAddition[8].Data[m];
-					//cout<<temp1[k];
 				}
-				//cout<<endl;
 
 				//Compression
 				//Move Hash Values down 1
@@ -639,16 +503,6 @@ int main(){
 					HashValues[4].WorkingValues[m] = binaryAddition[8].Data[m];
 				}
 			}
-			/*
-			cout<<"Original Hash Values"<<endl;
-			for(int j=0; j<8; j++){
-				for(int k=0; k<32; k++){
-					cout<<HashValues[j].OriginalValues[k];
-				}
-				cout<<endl;
-			}
-			cout<<endl;
-			*/
 			//Add Working Hash Values to Original Hash Values
 			for(int k=0; k<8; k++){
 				for(int m=0; m<32; m++){
@@ -661,20 +515,7 @@ int main(){
 					HashValues[k].WorkingValues[m] = binaryAddition[8].Data[m];
 				}
 			}
-			/*
-			//Print for sanity pls
-			cout<<"Working Hash Values"<<endl;
-			for(int k=0; k<8; k++){
-				for(int m=0; m<32; m++){
-					cout<<HashValues[k].WorkingValues[m];
-				}
-				//cout<<endl;
-			}
-			cout<<endl;
-			*/
-
 		}
-		//cout<<endl;
 		//Convert output from binary to hex
 		string output[64];
 		int Word = 0;
@@ -741,18 +582,6 @@ void equationCompute(int equationNumber, int wordNumber, int blockNumber){
 		}
 	}
 	xortest();
-
-	/*
-	//Print Data Class
-	for(int i=0; i<4; i++){
-		cout<<endl<<i<<": ";
-		for(int j=0; j<32; j++){
-			cout<<Data[i].result[j];
-		}
-		cout<<endl;
-	}
-	*/
-
 }
 
 void rightShift(int RightShiftValue, int Order, int equationNumber, int wordNumber, int blockNumber){
