@@ -5,7 +5,7 @@ User inputs block header, nonce gets generated and added to block header, hash g
 */
 
 //TODO:
-//Add block validation (Check for block version)
+//Integrate with SHA256
 
 //#include "SHA256.h"
 #include <iostream>
@@ -19,11 +19,17 @@ int main(){
     int nonceCount[8];
     cout<<"Enter Block Header: ";
     cin.getline(input,153);
+    //Block Validation
+    if(input[0]+input[1]+input[2]+input[3]+input[4]+input[5]+input[6]+input[7] != 385){
+    cout<<"Incorrect Input"<<endl;
+    exit(1);
+    }
     //Print input
     for(int i=0; i<153; i++){
         cout<<input[i];
     }
     cout<<endl;
+
     //Initialize nonce
     for(int i=0; i<8; i++){
         nonceCount[i] = 0;
