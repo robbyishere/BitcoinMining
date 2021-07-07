@@ -1,17 +1,17 @@
 //TODO:
-//Calculate second hash
 //Make ConstantValues and HashValues shortcut
+//Cut down struct array values?
 //Improve binaryAdditionFunction
 
 #include "SHA256.h"
 
 struct messageBlocks{
 	int block[512];
-} msg[3];
+} msg[2];
 
 struct messageSchedule{
 	int word[32];
-} schedule[3][64];
+} schedule[2][64];
 
 struct equationData{
 	int result[32];
@@ -354,317 +354,366 @@ string hexToBinary(char input[], int characterCount){
 
 int main(){
 	char input[161];
-	cout<<"Enter the input: ";
+	cout<<"Enter the block header: ";
 	cin.getline(input,161);
-	cout<<"Character Count: "<<cin.gcount()<<endl;
-	int characterCount = cin.gcount();
-	string binary = hexToBinary(input, characterCount);
-
-	//print input for sanity check
-	for(int i=0; i<cin.gcount()-1; i++){
-		cout<<i<<" "<<input[i]<<endl;
-	}
+	//cout<<"Character Count: "<<cin.gcount()<<endl;
 	
-	//pad to 1024 (512*2) characters 
-	for(int i=640; i<1024; i++){
-		binary = binary + '0';
-	}
-
-
-	binary[640] = '1'; //add padding separator
-	//define message length of 640
-	binary[1016] = '1';
-	binary[1014] = '1';
-
-	//print binary conversion for sanity check
-	cout<<endl<<"Message:"<<endl<<binary<<endl;
-
-	//Splitting message into 512 bit message blocks and convert from string to int
-	for(int i=0; i<3; i++){
-		for(int j=0+(512*i); j<512*(i+1); j++){
-			if(binary[j] == '1'){
-				msg[i].block[j-512*i] = 1;
-			}
-			else{
-				msg[i].block[j-512*i] = 0;
-			}
-		}
-	}
-	//print msgBLKs for sanity check
-	for(int i=0; i<3; i++){
-		cout<<endl<<"msgBLK"<<i<<":"<<endl;
-		for(int j=0; j<512; j++){
-			cout<<msg[i].block[j];
-		}
-	}
-	
-	cout<<endl;
-	populateShiftValues();
-	computeConstants();
-	computeInitialHashValues();
-	//Loop for every block (i<2)
 	for(int i=0; i<2; i++){
-		int temp[32];
-		int temp1[32];
-		int equationNumber;
-		//initialize message schedule
-		//Split block into 32 bit "words"
-		for(int j=0; j<16; j++){
-			for(int k=0+(32*j); k<32*(j+1); k++){
-				schedule[i][j].word[k-32*j] = msg[i].block[k];
+	
+		int characterCount = cin.gcount(); //Make sure on second loop, character count is correct
+		string binary = hexToBinary(input, characterCount);
+
+		/*
+		//print input for sanity check
+		for(int j=0; j<cin.gcount()-1; j++){
+			cout<<j<<" "<<input[j]<<endl;
+		}
+		*/
+		
+		//pad to 1024 (512*2) characters or 512 characters 
+		int pad;
+		int maxLength;
+		if(i==0){
+			pad = 640;
+			maxLength = 1024;
+		}
+		if(i==1){
+			pad = 256;
+			maxLength = 512;
+		}
+		for(int j=pad; j<maxLength; j++){
+			binary = binary + '0';
+		}
+		
+		//add padding separator and define message length
+		if(i==0){
+			binary[640] = '1'; //separator
+			//message length
+			binary[1016] = '1';
+			binary[1014] = '1';
+		}
+		if(i==1){
+			binary[256] = '1'; //separator
+			binary[503] = '1'; //message length
+		}
+
+		/*
+		//print binary conversion for sanity check
+		cout<<endl<<"Message:"<<endl<<binary<<endl;
+		*/
+
+		//Splitting message into 512 bit message blocks and convert from string to int
+		int blockCount;
+		if(i==0){
+			blockCount = 2;
+		}
+		if(i==1){
+			blockCount = 1;
+		}
+		for(int j=0; j<blockCount; j++){
+			for(int k=0+(512*j); k<512*(j+1); k++){
+				if(binary[k] == '1'){
+					msg[j].block[k-512*j] = 1;
+				}
+				else{
+					msg[j].block[k-512*j] = 0;
+				}
 			}
 		}
 		/*
-		//Print out words for sanity check
-		cout<<endl<<endl<<"msgBLK"<<i<<": ";
-		for(int j=0; j<16; j++){
-			cout<<endl<<"Word "<<j<<": ";
-			for(int k=0; k<32; k++){
-					cout<<schedule[i][j].word[k];
+		//print msgBLKs for sanity check
+		for(int j=0; j<blockCount; j++){
+			cout<<endl<<"msgBLK"<<j<<":"<<endl;
+			for(int k=0; k<512; k++){
+				cout<<msg[j].block[k];
 			}
-		}
-		cout<<endl;
-		*/
-
-		//Fill out rest of message schedule (i<64)
-		for(int j=16; j<64; j++){
-			for(int k=0; k<32; k++){
-				binaryAddition[1].Data[k] = schedule[i][j-7].word[k];
-				binaryAddition[3].Data[k] = schedule[i][j-16].word[k];
-			}
-			int wordNumber = j-2;
-			equationNumber = 1;
-			equationCompute(equationNumber, wordNumber, i);
-			for(int k=0; k<32; k++){
-				binaryAddition[0].Data[k] = Data[3].result[k];
-			}
-			wordNumber = j-15;
-			equationNumber = 0;
-			equationCompute(equationNumber, wordNumber, i);
-			for(int k=0; k<32; k++){
-				binaryAddition[2].Data[k] = Data[3].result[k];
-			}
-			/*
-			//Print for sanity check
-			cout<<"One:    ";
-			for(int k=0; k<32; k++){
-				cout<<binaryAddition[0].Data[k];
-			}
-			cout<<endl<<"Two:    ";
-			for(int k=0; k<32; k++){
-				cout<<binaryAddition[1].Data[k];
-			}
-			cout<<endl<<"Three:  ";
-			for(int k=0; k<32; k++){
-				cout<<binaryAddition[2].Data[k];
-			}
-			cout<<endl<<"Four:   ";
-			for(int k=0; k<32; k++){
-				cout<<binaryAddition[3].Data[k];
-			}
-			*/
-			binaryAdditionFunction();
-
-			for(int k=0; k<32; k++){
-				schedule[i][j].word[k] = binaryAddition[8].Data[k];
-			}
-			/*
-			//Print for sanity check
-			cout<<endl<<"Add1:   ";
-			for(int k=0; k<32; k++){
-				cout<<binaryAddition[5].Data[k];
-			}
-			cout<<endl<<"Add2:   ";
-			for(int k=0; k<32; k++){
-				cout<<binaryAddition[6].Data[k];
-			}
-			cout<<endl<<"Result: ";
-			for(int k=0; k<32; k++){
-				cout<<schedule[i][j].word[k];
-			}
-			cout<<endl<<endl;
-			
-		}
-		//Print words after modification
-		for(int j=0; j<64; j++){
-			cout<<j<<": ";
-			for(int k=0; k<32; k++){
-				cout<<schedule[i][j].word[k];
-			}
-			cout<<endl;
-		*/			
-		}
-
-		for(int j=0; j<64; j++){
-			//Create temporary words for compression
-			equationNumber = 3;
-			equationCompute(equationNumber, 0, i);
-			for(int k=0; k<32; k++){
-				binaryAddition[0].Data[k] = Data[3].result[k];
-				binaryAddition[2].Data[k] = HashValues[7].WorkingValues[k];
-				binaryAddition[3].Data[k] = ConstantValues[j].WorkingValues[k];
-				binaryAddition[4].Data[k] = schedule[i][j].word[k];
-			}
-			choice();
-			binaryAdditionFunction();
-			/*
-			cout<<"One:    ";
-			for(int k=0; k<32; k++){
-				cout<<binaryAddition[0].Data[k];
-			}
-			cout<<endl<<"Two:    ";
-			for(int k=0; k<32; k++){
-				cout<<binaryAddition[1].Data[k];
-			}
-			cout<<endl<<"Three:  ";
-			for(int k=0; k<32; k++){
-				cout<<binaryAddition[2].Data[k];
-			}
-			cout<<endl<<"Four:   ";
-			for(int k=0; k<32; k++){
-				cout<<binaryAddition[3].Data[k];
-			}
-			cout<<endl<<"Five:   ";
-			for(int k=0; k<32; k++){
-				cout<<binaryAddition[4].Data[k];
-			}
-			cout<<endl<<"Add1:   ";
-			for(int k=0; k<32; k++){
-				cout<<binaryAddition[5].Data[k];
-			}
-			cout<<endl<<"Add2:   ";
-			for(int k=0; k<32; k++){
-				cout<<binaryAddition[6].Data[k];
-			}
-			cout<<endl<<"Add3:   ";
-			for(int k=0; k<32; k++){
-				cout<<binaryAddition[7].Data[k];
-			}
-			cout<<endl<<"Result: ";
-			for(int k=0; k<32; k++){
-				cout<<binaryAddition[8].Data[k];
-			}
-			*/
-			for(int k=0; k<32; k++){
-				temp[k] = binaryAddition[8].Data[k];
-			}
-			//cout<<endl;
-
-			//Clear binaryAddition class
-			for(int k=0; k<9; k++){
-				for(int l=0; l<32; l++){
-					binaryAddition[k].Data[l] = 0;
-				}
-			}
-			equationNumber = 2;
-			equationCompute(equationNumber, 0, i);
-			for(int k=0; k<32; k++){
-				binaryAddition[0].Data[k] = Data[3].result[k];
-			}
-			majority();
-			binaryAdditionFunction();
-			/*
-			cout<<"One:    ";
-			for(int k=0; k<32; k++){
-				cout<<binaryAddition[0].Data[k];
-			}
-			cout<<endl<<"Two:    ";
-			for(int k=0; k<32; k++){
-				cout<<binaryAddition[1].Data[k];
-			}
-			cout<<endl<<"Result: ";
-			*/
-			for(int k=0; k<32; k++){
-				temp1[k] = binaryAddition[8].Data[k];
-				//cout<<temp1[k];
-			}
-			//cout<<endl;
-
-			//Compression
-			//Move Hash Values down 1
-			for(int k=7; k>0; k--){
-				for(int l=0; l<32; l++){
-					HashValues[k].WorkingValues[l] = HashValues[k-1].WorkingValues[l];
-				}
-			}
-			//Binary Add temp and temp1 
-			for(int k=0; k<32; k++){
-				binaryAddition[0].Data[k] = temp[k];
-				binaryAddition[1].Data[k] = temp1[k];
-			}
-			binaryAdditionFunction();
-			
-			//Make Binary Addition result the first hash value
-			for(int k=0; k<32; k++){
-				HashValues[0].WorkingValues[k] = binaryAddition[8].Data[k];
-			}
-			//Binary Add temp to HashValues[4]
-			for(int k=0; k<32; k++){
-				binaryAddition[0].Data[k] = temp[k];
-				binaryAddition[1].Data[k] = HashValues[4].WorkingValues[k];
-			}
-			binaryAdditionFunction();
-			for(int k=0; k<32; k++){
-				HashValues[4].WorkingValues[k] = binaryAddition[8].Data[k];
-			}
-		}
-		/*
-		cout<<"Original Hash Values"<<endl;
-		for(int j=0; j<8; j++){
-			for(int k=0; k<32; k++){
-				cout<<HashValues[j].OriginalValues[k];
-			}
-			cout<<endl;
-		}
-		cout<<endl;
-		*/
-		//Add Working Hash Values to Original Hash Values
-		for(int j=0; j<8; j++){
-			for(int k=0; k<32; k++){
-				binaryAddition[0].Data[k] = HashValues[j].OriginalValues[k];
-				binaryAddition[1].Data[k] = HashValues[j].WorkingValues[k];
-			}
-			binaryAdditionFunction();
-			for(int k=0; k<32; k++){
-				HashValues[j].OriginalValues[k] = binaryAddition[8].Data[k];
-				HashValues[j].WorkingValues[k] = binaryAddition[8].Data[k];
-			}
-		}
-		//Print for sanity pls
-		cout<<"Working Hash Values"<<endl;
-		for(int j=0; j<8; j++){
-			for(int k=0; k<32; k++){
-				cout<<HashValues[j].WorkingValues[k];
-			}
-			//cout<<endl;
-		}
-		cout<<endl;
-
-	}
-	cout<<endl;
-	//Convert output from binary to hex
-	string output[64];
-	int Word = 0;
-	int Value = 0;
-	//Combine WorkingValues and split into 64 chunks, 4-bit string
-	for(int i=0; i<64; i++){
-		for(int j=0; j<4; j++){
-			if(HashValues[Word].WorkingValues[Value] == 1){
-				output[i] = output[i] + '1';
-			}
-			else{
-				output[i] = output[i] + '0';
-			}
-		if(Value == 31){
-			Value = 0;
-			Word++;
 		}		
-		else{
-			Value++;
+		cout<<endl;
+		*/
+		populateShiftValues();
+		computeConstants();
+		computeInitialHashValues();
+		//Loop for every block (i<2)
+		for(int j=0; j<blockCount; j++){
+			int temp[32];
+			int temp1[32];
+			int equationNumber;
+			//initialize message schedule
+			//Split block into 32 bit "words"
+			for(int k=0; k<16; k++){
+				for(int m=0+(32*k); m<32*(k+1); m++){
+					schedule[j][k].word[m-32*k] = msg[j].block[m];
+				}
+			}
+			/*
+			//Print out words for sanity check
+			cout<<endl<<endl<<"msgBLK"<<i<<": ";
+			for(int j=0; j<16; j++){
+				cout<<endl<<"Word "<<j<<": ";
+				for(int k=0; k<32; k++){
+						cout<<schedule[i][j].word[k];
+				}
+			}
+			cout<<endl;
+			*/
+
+			//Fill out rest of message schedule (i<64)
+			for(int k=16; k<64; k++){
+				for(int m=0; m<32; m++){
+					binaryAddition[1].Data[m] = schedule[j][k-7].word[m];
+					binaryAddition[3].Data[m] = schedule[j][k-16].word[m];
+				}
+				int wordNumber = k-2;
+				equationNumber = 1;
+				equationCompute(equationNumber, wordNumber, j);
+				for(int m=0; m<32; m++){
+					binaryAddition[0].Data[m] = Data[3].result[m];
+				}
+				wordNumber = k-15;
+				equationNumber = 0;
+				equationCompute(equationNumber, wordNumber, j);
+				for(int m=0; m<32; m++){
+					binaryAddition[2].Data[m] = Data[3].result[m];
+				}
+				/*
+				//Print for sanity check
+				cout<<"One:    ";
+				for(int k=0; k<32; k++){
+					cout<<binaryAddition[0].Data[k];
+				}
+				cout<<endl<<"Two:    ";
+				for(int k=0; k<32; k++){
+					cout<<binaryAddition[1].Data[k];
+				}
+				cout<<endl<<"Three:  ";
+				for(int k=0; k<32; k++){
+					cout<<binaryAddition[2].Data[k];
+				}
+				cout<<endl<<"Four:   ";
+				for(int k=0; k<32; k++){
+					cout<<binaryAddition[3].Data[k];
+				}
+				*/
+				binaryAdditionFunction();
+
+				for(int m=0; m<32; m++){
+					schedule[j][k].word[m] = binaryAddition[8].Data[m];
+				}
+				/*
+				//Print for sanity check
+				cout<<endl<<"Add1:   ";
+				for(int k=0; k<32; k++){
+					cout<<binaryAddition[5].Data[k];
+				}
+				cout<<endl<<"Add2:   ";
+				for(int k=0; k<32; k++){
+					cout<<binaryAddition[6].Data[k];
+				}
+				cout<<endl<<"Result: ";
+				for(int k=0; k<32; k++){
+					cout<<schedule[i][j].word[k];
+				}
+				cout<<endl<<endl;
+				
+			}
+			//Print words after modification
+			for(int j=0; j<64; j++){
+				cout<<j<<": ";
+				for(int k=0; k<32; k++){
+					cout<<schedule[i][j].word[k];
+				}
+				cout<<endl;
+			*/			
+			}
+
+			for(int k=0; k<64; k++){
+				//Create temporary words for compression
+				equationNumber = 3;
+				equationCompute(equationNumber, 0, j);
+				for(int m=0; m<32; m++){
+					binaryAddition[0].Data[m] = Data[3].result[m];
+					binaryAddition[2].Data[m] = HashValues[7].WorkingValues[m];
+					binaryAddition[3].Data[m] = ConstantValues[k].WorkingValues[m];
+					binaryAddition[4].Data[m] = schedule[j][k].word[m];
+				}
+				choice();
+				binaryAdditionFunction();
+				/*
+				cout<<"One:    ";
+				for(int k=0; k<32; k++){
+					cout<<binaryAddition[0].Data[k];
+				}
+				cout<<endl<<"Two:    ";
+				for(int k=0; k<32; k++){
+					cout<<binaryAddition[1].Data[k];
+				}
+				cout<<endl<<"Three:  ";
+				for(int k=0; k<32; k++){
+					cout<<binaryAddition[2].Data[k];
+				}
+				cout<<endl<<"Four:   ";
+				for(int k=0; k<32; k++){
+					cout<<binaryAddition[3].Data[k];
+				}
+				cout<<endl<<"Five:   ";
+				for(int k=0; k<32; k++){
+					cout<<binaryAddition[4].Data[k];
+				}
+				cout<<endl<<"Add1:   ";
+				for(int k=0; k<32; k++){
+					cout<<binaryAddition[5].Data[k];
+				}
+				cout<<endl<<"Add2:   ";
+				for(int k=0; k<32; k++){
+					cout<<binaryAddition[6].Data[k];
+				}
+				cout<<endl<<"Add3:   ";
+				for(int k=0; k<32; k++){
+					cout<<binaryAddition[7].Data[k];
+				}
+				cout<<endl<<"Result: ";
+				for(int k=0; k<32; k++){
+					cout<<binaryAddition[8].Data[k];
+				}
+				*/
+				for(int m=0; m<32; m++){
+					temp[m] = binaryAddition[8].Data[m];
+				}
+				//cout<<endl;
+
+				//Clear binaryAddition class
+				for(int m=0; m<9; m++){
+					for(int n=0; n<32; n++){
+						binaryAddition[m].Data[n] = 0;
+					}
+				}
+				equationNumber = 2;
+				equationCompute(equationNumber, 0, j);
+				for(int m=0; m<32; m++){
+					binaryAddition[0].Data[m] = Data[3].result[m];
+				}
+				majority();
+				binaryAdditionFunction();
+				/*
+				cout<<"One:    ";
+				for(int k=0; k<32; k++){
+					cout<<binaryAddition[0].Data[k];
+				}
+				cout<<endl<<"Two:    ";
+				for(int k=0; k<32; k++){
+					cout<<binaryAddition[1].Data[k];
+				}
+				cout<<endl<<"Result: ";
+				*/
+				for(int m=0; m<32; m++){
+					temp1[m] = binaryAddition[8].Data[m];
+					//cout<<temp1[k];
+				}
+				//cout<<endl;
+
+				//Compression
+				//Move Hash Values down 1
+				for(int m=7; m>0; m--){
+					for(int n=0; n<32; n++){
+						HashValues[m].WorkingValues[n] = HashValues[m-1].WorkingValues[n];
+					}
+				}
+				//Binary Add temp and temp1 
+				for(int m=0; m<32; m++){
+					binaryAddition[0].Data[m] = temp[m];
+					binaryAddition[1].Data[m] = temp1[m];
+				}
+				binaryAdditionFunction();
+				
+				//Make Binary Addition result the first hash value
+				for(int m=0; m<32; m++){
+					HashValues[0].WorkingValues[m] = binaryAddition[8].Data[m];
+				}
+				//Binary Add temp to HashValues[4]
+				for(int m=0; m<32; m++){
+					binaryAddition[0].Data[m] = temp[m];
+					binaryAddition[1].Data[m] = HashValues[4].WorkingValues[m];
+				}
+				binaryAdditionFunction();
+				for(int m=0; m<32; m++){
+					HashValues[4].WorkingValues[m] = binaryAddition[8].Data[m];
+				}
+			}
+			/*
+			cout<<"Original Hash Values"<<endl;
+			for(int j=0; j<8; j++){
+				for(int k=0; k<32; k++){
+					cout<<HashValues[j].OriginalValues[k];
+				}
+				cout<<endl;
+			}
+			cout<<endl;
+			*/
+			//Add Working Hash Values to Original Hash Values
+			for(int k=0; k<8; k++){
+				for(int m=0; m<32; m++){
+					binaryAddition[0].Data[m] = HashValues[k].OriginalValues[m];
+					binaryAddition[1].Data[m] = HashValues[k].WorkingValues[m];
+				}
+				binaryAdditionFunction();
+				for(int m=0; m<32; m++){
+					HashValues[k].OriginalValues[m] = binaryAddition[8].Data[m];
+					HashValues[k].WorkingValues[m] = binaryAddition[8].Data[m];
+				}
+			}
+			/*
+			//Print for sanity pls
+			cout<<"Working Hash Values"<<endl;
+			for(int k=0; k<8; k++){
+				for(int m=0; m<32; m++){
+					cout<<HashValues[k].WorkingValues[m];
+				}
+				//cout<<endl;
+			}
+			cout<<endl;
+			*/
+
 		}
+		//cout<<endl;
+		//Convert output from binary to hex
+		string output[64];
+		int Word = 0;
+		int Value = 0;
+		//Combine WorkingValues and split into 64 chunks, 4-bit string
+		for(int j=0; j<64; j++){
+			for(int k=0; k<4; k++){
+				if(HashValues[Word].WorkingValues[Value] == 1){
+					output[j] = output[j] + '1';
+				}
+				else{
+					output[j] = output[j] + '0';
+				}
+			if(Value == 31){
+				Value = 0;
+				Word++;
+			}		
+			else{
+				Value++;
+			}
+			}
+		}
+		
+		//Copy output hash to input
+		if(i==0){
+			string temp;
+			temp = binaryToHex(output);
+			for(int j=0; j<64; j++){
+				input[j] = temp[j];
+			}
+			for(int j=64; j<162; j++){
+				input[j] = '\0';
+			}
+		}
+		//Displays final output
+		if(i==1){
+			cout<<binaryToHex(output)<<endl;
 		}
 	}
-	cout<<binaryToHex(output)<<endl;
 }
 //4 Types of equations that needs to be computed
 //Equations 0 and 1 needs two right shifts and a normal shift
@@ -763,8 +812,9 @@ void xortest(){
 	}
 }
 
-//Try to find a way to improve this
+//Try to find a way to improve this so it doesn't run unnecessary loops
 //We need to calculate 2,4, and 5 equations
+//When calculating 2 equations, it needs to binary add empty arrays to get to binaryAddition[8]
 //Maybe subtract 1/2 from `i<4` in the for loop and `binaryAddition[5+i]`? when needed?
 /*
 0 + 1 stores in 5
