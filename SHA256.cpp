@@ -1,8 +1,12 @@
-//TODO:
-//Make ConstantValues and HashValues shortcut
-//Cut down struct array values?
-//Improve binaryAdditionFunction
-
+/* TODO:
+Make ConstantValues and HashValues shortcut
+Cut down struct array values?
+Improve binaryAdditionFunction
+*/
+/* Ideas for optimization:
+Use Right Shift operator
+Use XOR operator
+*/
 #include "SHA256.h"
 
 struct messageBlocks{
