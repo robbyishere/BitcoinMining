@@ -550,9 +550,20 @@ int main(){
 				input[j] = '\0';
 			}
 		}
+		
 		//Displays final output
 		if(i==1){
-			cout<<binaryToHex(output)<<endl;
+			string temp;
+			string temp1;
+			temp = binaryToHex(output);
+			//Convert little endian to hex
+			for(int j=32; j>0; j--){
+				for(int k=2; k>0; k--){
+					temp1 = temp1 + temp[((j*2)-k)];
+				}
+			}
+			cout<<temp1<<endl;
+			
 		}
 	}
 }
