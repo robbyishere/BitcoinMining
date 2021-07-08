@@ -19,3 +19,4 @@ void equationCompute(int equationNumber, int wordNumber, int blockNumber);
 void binaryAdditionFunction();
 void majority();
 void choice();
+string SHA256(char minerInput[]);

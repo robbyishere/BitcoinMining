@@ -6,6 +6,7 @@ Improve binaryAdditionFunction
 /* Ideas for optimization:
 Use Right Shift operator
 Use XOR operator
+Target Check before computing rest of hash values
 */
 #include "SHA256.h"
 
@@ -350,15 +351,12 @@ string hexToBinary(char input[], int characterCount){
 	return result;
 }
 
-int main(){
-	char input[161];
-	cout<<"Enter the block header: ";
-	cin.getline(input,161);
-	
+string SHA256(char minerInput[]){
+	string result;
 	for(int i=0; i<2; i++){
 	
-		int characterCount = cin.gcount(); //Make sure on second loop, character count is correct
-		string binary = hexToBinary(input, characterCount);
+		int characterCount = 160; //Make sure on second loop, character count is correct
+		string binary = hexToBinary(minerInput, characterCount);
 		
 		//pad to 1024 (512*2) characters or 512 characters 
 		int pad;
@@ -548,10 +546,10 @@ int main(){
 			string temp;
 			temp = binaryToHex(output);
 			for(int j=0; j<64; j++){
-				input[j] = temp[j];
+				minerInput[j] = temp[j];
 			}
-			for(int j=64; j<162; j++){
-				input[j] = '\0';
+			for(int j=64; j<160; j++){
+				minerInput[j] = '\0';
 			}
 		}
 		
@@ -568,10 +566,10 @@ int main(){
 					temp1 = temp1 + temp[((j*2)-k)];
 				}
 			}
-			cout<<temp1<<endl;
-			
+			result = temp1;
 		}
 	}
+	return(result);
 }
 //4 Types of equations that needs to be computed
 //Equations 0 and 1 needs two right shifts and a normal shift
