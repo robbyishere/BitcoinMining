@@ -5,9 +5,9 @@ User inputs block header, nonce gets generated and added to block header, hash g
 */
 
 //TODO:
-//cout not printing correct output?
-//Check hash against target
-//Implement initialNonce value
+//Add initialNonce hex to decimal converter?
+//Clean up messy code
+//Add comments
 
 #include "SHA256.h"
 
@@ -18,9 +18,8 @@ int main(){
     int finished = 0;
     cout<<"Enter Block Header: ";
     cin.getline(input,153);
-    cout<<"Enter Initial Nonce Value: ";
-    //cin>>initialNonce;
-    cout<<endl;
+    cin.clear();
+    cin.ignore(9999,'\n');
     
     //Block Header Validation
     //Checks for correct block version
@@ -28,16 +27,24 @@ int main(){
     cout<<"Incorrect Input"<<endl;
     exit(1);
     }
-    /*
-    //Print input
-    for(int i=0; i<153; i++){
-        cout<<input[i];
-    }
-    cout<<endl;
-    */
     //Initialize nonce
     for(int i=0; i<8; i++){
         nonceCount[i] = 0;
+        input[152+i] = 0;
+
+    }    
+    char answer;
+    cout<<"Do you want to enter custom nonce? (Y or N): ";
+    cin>>answer;
+    switch(answer){
+        case 'Y':
+            for(int i=0; i<8; i++){
+                int temp;
+                cout<<"Enter number "<<i<<" of nonce (int):";
+                cin>>temp;
+                cout<<endl;
+                nonceCount[i] = temp;
+            }
     }
     //Find target
     char temp[2];
@@ -98,9 +105,25 @@ int main(){
     }
     
     target = (32-target)*2;
-    cout<<target<<endl;
-
-    while(true){
+    int count = 0;
+    while(finished == 0){
+        string temp3;
+        temp3 = SHA256(input);
+        cout<<count+1<<": "<<temp3<<endl;
+        //Counts zeros in hash
+        int temp4;
+        for(int i=0; i<target; i++){
+            if(temp3[i] == '0'){
+                temp4++;
+            }
+        }
+        //Compare number of zeros to target
+        if(temp4==target){
+            finished = 1;
+        }
+        else{
+            temp4=0;
+        }
         //Increment nonce
         char nonce[8];
         for(int i=7; i>-1; i--){
@@ -176,18 +199,16 @@ int main(){
         for(int i=0; i<8; i++){
             input[152+i] = temp1[i];
         }
-        
         //Copy Input array to temp2
         char temp2[160];
         for(int i=0; i<160; i++){
             temp2[i] = input[i];
         }
-        cout<<SHA256(input)<<endl;
         //Copy back temp2 to Input Array
         //(Changes to input array in SHA256 function forwards changes here)
         for(int i=0; i<160; i++){
             input[i] = temp2[i];
         }
+    count++;
     }
-
 }   
