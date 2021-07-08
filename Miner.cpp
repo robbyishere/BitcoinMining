@@ -176,13 +176,18 @@ int main(){
         for(int i=0; i<8; i++){
             input[152+i] = temp1[i];
         }
-
+        
+        //Copy Input array to temp2
+        char temp2[160];
         for(int i=0; i<160; i++){
-            cout<<input[i];
+            temp2[i] = input[i];
         }
-        cout<<endl;
         cout<<SHA256(input)<<endl;
-        cin.ignore();
+        //Copy back temp2 to Input Array
+        //(Changes to input array in SHA256 function forwards changes here)
+        for(int i=0; i<160; i++){
+            input[i] = temp2[i];
+        }
     }
 
 }   
