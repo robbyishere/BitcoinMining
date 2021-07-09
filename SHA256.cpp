@@ -1,7 +1,7 @@
 /* TODO:
 Cut down struct array values?
-Improve binaryAdditionFunction
 */
+
 /* Ideas for optimization:
 Use Right Shift operator
 Use XOR operator
@@ -329,10 +329,10 @@ string SHA256(char minerInput[]){
 				for(int m=0; m<32; m++){
 					binaryAddition[2].Data[m] = Data[3].result[m];
 				}
-				binaryAdditionFunction();
+				binaryAdditionFunction(1);
 				for(int m=0; m<32; m++){
-					schedule[j][k].word[m] = binaryAddition[8].Data[m];
-				}			
+					schedule[j][k].word[m] = binaryAddition[6].Data[m];
+				}	
 			}
 
 			for(int k=0; k<64; k++){
@@ -351,7 +351,7 @@ string SHA256(char minerInput[]){
 					binaryAddition[4].Data[m] = schedule[j][k].word[m];
 				}
 				choice();
-				binaryAdditionFunction();
+				binaryAdditionFunction(0);
 
 				for(int m=0; m<32; m++){
 					temp[m] = binaryAddition[8].Data[m];
@@ -369,10 +369,9 @@ string SHA256(char minerInput[]){
 					binaryAddition[0].Data[m] = Data[3].result[m];
 				}
 				majority();
-				binaryAdditionFunction();
-
+				binaryAdditionFunction(3);
 				for(int m=0; m<32; m++){
-					temp1[m] = binaryAddition[8].Data[m];
+					temp1[m] = binaryAddition[2].Data[m];
 				}
 
 				//Compression
@@ -387,20 +386,20 @@ string SHA256(char minerInput[]){
 					binaryAddition[0].Data[m] = temp[m];
 					binaryAddition[1].Data[m] = temp1[m];
 				}
-				binaryAdditionFunction();
+				binaryAdditionFunction(3);
 				
 				//Make Binary Addition result the first hash value
 				for(int m=0; m<32; m++){
-					HashValues[0].WorkingValues[m] = binaryAddition[8].Data[m];
+					HashValues[0].WorkingValues[m] = binaryAddition[2].Data[m];
 				}
 				//Binary Add temp to HashValues[4]
 				for(int m=0; m<32; m++){
 					binaryAddition[0].Data[m] = temp[m];
 					binaryAddition[1].Data[m] = HashValues[4].WorkingValues[m];
 				}
-				binaryAdditionFunction();
+				binaryAdditionFunction(3);
 				for(int m=0; m<32; m++){
-					HashValues[4].WorkingValues[m] = binaryAddition[8].Data[m];
+					HashValues[4].WorkingValues[m] = binaryAddition[2].Data[m];
 				}
 			}
 			//Add Working Hash Values to Original Hash Values
@@ -409,10 +408,10 @@ string SHA256(char minerInput[]){
 					binaryAddition[0].Data[m] = HashValues[k].OriginalValues[m];
 					binaryAddition[1].Data[m] = HashValues[k].WorkingValues[m];
 				}
-				binaryAdditionFunction();
+				binaryAdditionFunction(3);
 				for(int m=0; m<32; m++){
-					HashValues[k].OriginalValues[m] = binaryAddition[8].Data[m];
-					HashValues[k].WorkingValues[m] = binaryAddition[8].Data[m];
+					HashValues[k].OriginalValues[m] = binaryAddition[2].Data[m];
+					HashValues[k].WorkingValues[m] = binaryAddition[2].Data[m];
 				}
 			}
 		}
@@ -555,33 +554,23 @@ void xortest(){
 	}
 }
 
-//Try to find a way to improve this so it doesn't run unnecessary loops
-//We need to calculate 2,4, and 5 equations
-//When calculating 2 equations, it needs to binary add empty arrays to get to binaryAddition[8]
-//Maybe subtract 1/2 from `i<4` in the for loop and `binaryAddition[5+i]`? when needed?
-/*
-0 + 1 stores in 5
-2 + 3 stores in 6
-4 + 5 stores in 7
-6 + 7 stores in 8
-*/
-void binaryAdditionFunction(){
-	for(int i=0; i<4; i++){
+void binaryAdditionFunction(int equationsCount){
+	for(int i=0; i<4 - equationsCount; i++){
 		int carry = 0;
 		for(int j=0; j<32; j++){
 			if(binaryAddition[0 + (i*2)].Data[31-j] + binaryAddition[1 + (i*2)].Data[31-j] + carry == 0){
-				binaryAddition[5 + i].Data[31-j] = 0;
+				binaryAddition[5 + i - equationsCount].Data[31-j] = 0;
 			}
 			if(binaryAddition[0 + (i*2)].Data[31-j] + binaryAddition[1 + (i*2)].Data[31-j] + carry == 1){
-				binaryAddition[5 + i].Data[31-j] = 1;
+				binaryAddition[5 + i - equationsCount].Data[31-j] = 1;
 				carry = 0;
 			}
 			if(binaryAddition[0 + (i*2)].Data[31-j] + binaryAddition[1 + (i*2)].Data[31-j] + carry == 3){
-				binaryAddition[5 + i].Data[31-j] = 1;
+				binaryAddition[5 + i - equationsCount].Data[31-j] = 1;
 				carry = 1;
 			}
 			if(binaryAddition[0 + (i*2)].Data[31-j] + binaryAddition[1 + (i*2)].Data[31-j] + carry == 2){
-				binaryAddition[5 + i].Data[31-j] = 0;
+				binaryAddition[5 + i - equationsCount].Data[31-j] = 0;
 				carry = 1;
 			}
 		}
