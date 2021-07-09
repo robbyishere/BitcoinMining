@@ -6,8 +6,7 @@ User inputs block header, nonce gets generated and added to block header, hash g
 
 //TODO:
 //Add initialNonce hex to decimal converter?
-//Clean up messy code
-//Add comments
+//Improve Code
 
 #include "SHA256.h"
 
@@ -140,10 +139,10 @@ int main(){
         }
         else{
             temp4=0;
+            count++;
         }
         
         //Increment nonce
-        char nonce[8];
         for(int i=7; i>-1; i--){
             if(i==7 && nonceCount[7]<16){
                 nonceCount[7] = nonceCount[7] + 1;
@@ -154,6 +153,7 @@ int main(){
             }
         }
         //Convert nonce to hex
+        char nonce[8];
         for(int i=0; i<8; i++){
             switch(nonceCount[i]){
                 case 0:
@@ -219,6 +219,5 @@ int main(){
         for(int i=0; i<8; i++){
             input[152+i] = temp1[i];
         }
-    count++;
     }
 }   

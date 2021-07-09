@@ -125,6 +125,7 @@ void computeInitialHashValues(){
 	//Duplicate values
 	for(int i=0; i<8; i++){
 		for(int j=0; j<32; j++){
+			//Convert string to int
 			if(HashValues[i].InitialValues[j] == '1'){
 				HashValues[i].OriginalValues[j] = 1;
 				HashValues[i].WorkingValues[j] = 1;
@@ -294,8 +295,6 @@ string SHA256(char minerInput[]){
 		
 		//Loop for every block
 		for(int j=0; j<blockCount; j++){
-			int temp[32];
-			int temp1[32];
 			int equationNumber;
 			//Initialize message schedule
 			int wordCount = 0;
@@ -337,6 +336,8 @@ string SHA256(char minerInput[]){
 
 			for(int k=0; k<64; k++){
 				//Create temporary words for compression
+				int temp[32];
+				int temp1[32];
 				equationNumber = 3;
 				equationCompute(equationNumber, 0, j);
 				for(int m=0; m<32; m++){

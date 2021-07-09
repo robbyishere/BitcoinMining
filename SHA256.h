@@ -1,5 +1,4 @@
 #include <iostream>
-#include <cmath> //Needed for calculating constants and initial hash values, Can be removed when using shortcut
 
 using std::endl;
 using std::cout;
