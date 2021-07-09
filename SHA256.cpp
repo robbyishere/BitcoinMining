@@ -6,13 +6,10 @@ Improve binaryAdditionFunction
 /* Ideas for optimization:
 Use Right Shift operator
 Use XOR operator
+bool instead of int (Might not increase speed but saves memory)
 Target Check before computing rest of hash values
 */
 #include "SHA256.h"
-
-struct messageBlocks{
-	int block[512];
-} msg[2];
 
 struct messageSchedule{
 	int word[32];
@@ -120,16 +117,16 @@ void computeConstants(){
 	ConstantValues[63].Original = cbrt(311);
 	for(int i=0; i<64; i++){
 		int ConstantInteger = ConstantValues[i].Original;
-		double hex = (ConstantValues[i].Original - ConstantInteger); //remove starting integer 
+		double hex = (ConstantValues[i].Original - ConstantInteger); //Remove starting integer 
 		cout.precision(16);
 		int HexStore[8];
 		char input[8];
-		//convert to hex
+		//Convert to hex
 		for(int j=0; j<8; j++){
 			hex = hex*16;
 			HexStore[j] = hex;
 			hex = hex - HexStore[j];
-			//convert to binary
+			//Convert to binary
 			switch(HexStore[j]){
 				case 0:
 					ConstantValues[i].Computed = ConstantValues[i].Computed + "0000";
@@ -220,11 +217,11 @@ void computeInitialHashValues(){
 			binaryConvert = binaryConvert/2; //prepare for calculating next bit
 			loop++;
 		}
-		//pad to 32 bits
+		//Pad to 32 bits
 		for(int j=loop; j<32; j++){
 			binary[j] = 0;
 		}
-		//reverse and convert to int array
+		//Reverse and Vonvert to int array
 		for(int j=0; j<32; j++){
 			if(binary[31-j] == 1){
 				HashValues[i].WorkingValues[j] = 1;
@@ -233,9 +230,9 @@ void computeInitialHashValues(){
 				HashValues[i].WorkingValues[j] = 0;
 			}
 		}
-		
+		//Duplicate values
 		for(int j=0; j<32; j++){
-			HashValues[i].OriginalValues[j] = HashValues[i].WorkingValues[j]; //duplicate values
+			HashValues[i].OriginalValues[j] = HashValues[i].WorkingValues[j];
 		}
 		}
 
@@ -353,36 +350,36 @@ string hexToBinary(char input[], int characterCount){
 
 string SHA256(char minerInput[]){
 	string result;
-	for(int i=0; i<2; i++){
-	
-		int characterCount = 160; //Make sure on second loop, character count is correct
-		string binary = hexToBinary(minerInput, characterCount);
+	for(int i=0; i<2; i++){ //Loops twice to compute SHA256 twice for correct block hash
 		
-		//pad to 1024 (512*2) characters or 512 characters 
-		int pad;
-		int maxLength;
+		//Convert input to binary
+		string message = hexToBinary(minerInput, 160);
+		
+		//Pad message to 1024 (512*2) characters or 512 characters
+		int padStart;
+		int padEnd;
 		if(i==0){
-			pad = 640;
-			maxLength = 1024;
+			padStart = 640;
+			padEnd = 1024;
 		}
 		if(i==1){
-			pad = 256;
-			maxLength = 512;
+			padStart = 256;
+			padEnd = 512;
 		}
-		for(int j=pad; j<maxLength; j++){
-			binary = binary + '0';
+		for(int j=padStart; j<padEnd; j++){
+			message = message + '0';
 		}
 
-		//add padding separator and define message length
+		//Add padding separator and define message length
 		if(i==0){
-			binary[640] = '1'; //separator
-			//message length
-			binary[1016] = '1';
-			binary[1014] = '1';
+			message[640] = '1'; //Separator
+			//Message length
+			message[1016] = '1';
+			message[1014] = '1';
 		}
 		if(i==1){
-			binary[256] = '1'; //separator
-			binary[503] = '1'; //message length
+			message[256] = '1'; //Separator
+			message[503] = '1'; //Message length
 		}
 
 		//Splitting message into 512 bit message blocks and convert from string to int
@@ -393,30 +390,28 @@ string SHA256(char minerInput[]){
 		if(i==1){
 			blockCount = 1;
 		}
-		for(int j=0; j<blockCount; j++){
-			for(int k=0+(512*j); k<512*(j+1); k++){
-				if(binary[k] == '1'){
-					msg[j].block[k-512*j] = 1;
-				}
-				else{
-					msg[j].block[k-512*j] = 0;
-				}
-			}
-		}
 		populateShiftValues();
 		computeConstants();
 		computeInitialHashValues();
-		//Loop for every block (i<2)
+		
+		//Loop for every block
 		for(int j=0; j<blockCount; j++){
 			int temp[32];
 			int temp1[32];
 			int equationNumber;
-			//initialize message schedule
-			//Split block into 32 bit "words"
-			for(int k=0; k<16; k++){
-				for(int m=0+(32*k); m<32*(k+1); m++){
-					schedule[j][k].word[m-32*k] = msg[j].block[m];
+			//Initialize message schedule
+			int wordCount = 0;
+			for(int k=(512*j); k<512+(j*512); k++){ //Blocks are 512 bits long, fills schedule with 16, 32 bit words
+				for(int m=0; m<32; m++){
+					if(message[k+m] == '1'){
+						schedule[j][wordCount].word[m] = 1;
+					}
+					else{
+						schedule[j][wordCount].word[m] = 0;
+					}
 				}
+				wordCount++;
+				k=k+31;
 			}
 			//Fill out rest of message schedule (i<64)
 			for(int k=16; k<64; k++){
@@ -518,11 +513,12 @@ string SHA256(char minerInput[]){
 				}
 			}
 		}
+		
 		//Convert output from binary to hex
 		string output[64];
 		int Word = 0;
 		int Value = 0;
-		//Combine WorkingValues and split into 64 chunks, 4-bit string
+		//Combine WorkingValues together and split into 64 chunks, 4-bit string
 		for(int j=0; j<64; j++){
 			for(int k=0; k<4; k++){
 				if(HashValues[Word].WorkingValues[Value] == 1){
@@ -541,7 +537,7 @@ string SHA256(char minerInput[]){
 			}
 		}
 		
-		//Copy output hash to input
+		//Copy output hash to input to be recomputed
 		if(i==0){
 			string temp;
 			temp = binaryToHex(output);

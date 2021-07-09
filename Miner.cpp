@@ -27,6 +27,7 @@ int main(){
     cout<<"Incorrect Input"<<endl;
     exit(1);
     }
+    
     //Initialize nonce
     for(int i=0; i<8; i++){
         nonceCount[i] = 0;
@@ -46,6 +47,7 @@ int main(){
                 nonceCount[i] = temp;
             }
     }
+    
     //Find target
     char temp[2];
     int target = 0;
@@ -107,9 +109,24 @@ int main(){
     target = (32-target)*2;
     int count = 0;
     while(finished == 0){
+        //Copy Input array to temp2
+        char temp2[160];
+        for(int i=0; i<160; i++){
+            temp2[i] = input[i];
+        }
+        
+        //Compute SHA256 hash from input
         string temp3;
         temp3 = SHA256(input);
-        cout<<count+1<<": "<<temp3<<endl;
+        //Print hash
+        cout<<count<<": "<<temp3<<endl;
+        
+        //Copy back temp2 to Input Array
+        //(Changes to input array in SHA256 function forwards changes to this function)
+        for(int i=0; i<160; i++){
+            input[i] = temp2[i];
+        }
+        
         //Counts zeros in hash
         int temp4;
         for(int i=0; i<target; i++){
@@ -124,6 +141,7 @@ int main(){
         else{
             temp4=0;
         }
+        
         //Increment nonce
         char nonce[8];
         for(int i=7; i>-1; i--){
@@ -188,26 +206,18 @@ int main(){
                     break;
             }
         }
-        //make nonce little endian
+        
+        //Make nonce little endian
         char temp1[8];
         for(int i=4; i>0; i--){
             for(int j=2; j>0; j--){
 	    		temp1[7-((i*2)-(3-j))] = nonce[((i*2)-j)];
 	    	}
 	    }
+        
         //Add nonce to block header
         for(int i=0; i<8; i++){
             input[152+i] = temp1[i];
-        }
-        //Copy Input array to temp2
-        char temp2[160];
-        for(int i=0; i<160; i++){
-            temp2[i] = input[i];
-        }
-        //Copy back temp2 to Input Array
-        //(Changes to input array in SHA256 function forwards changes here)
-        for(int i=0; i<160; i++){
-            input[i] = temp2[i];
         }
     count++;
     }
