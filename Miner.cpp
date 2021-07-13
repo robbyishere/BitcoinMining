@@ -104,8 +104,12 @@ int main(){
     if(temp[1] == 'f'){
     target = target + 15;
     }
-    
     target = (32-target)*2;
+    
+    //Initialize Constant Values
+    struct ConstantValueStruct ConstantValues[64];
+    computeConstants(ConstantValues);
+    
     int count = 0;
     while(finished == 0){
         //Copy Input array to temp2
@@ -116,7 +120,7 @@ int main(){
         
         //Compute SHA256 hash from input
         string temp3;
-        temp3 = SHA256(input);
+        temp3 = SHA256(input, ConstantValues);
         //Print hash
         cout<<count<<": "<<temp3<<endl;
         

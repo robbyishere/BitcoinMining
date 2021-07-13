@@ -3,11 +3,14 @@ Cut down struct array values?
 */
 
 /* Ideas for optimization:
+Compute hex to binary on input during initialization then only compute hex to binary on nonce for every hash
+Utilize pointers?
 Use Right Shift operator
 Use XOR operator
 bool instead of int (Might not increase speed but saves memory)
 Target Check before computing rest of hash values
 */
+
 #include "SHA256.h"
 
 struct messageSchedule{
@@ -21,17 +24,16 @@ struct equationData{
 struct equationShiftValues{
 	int Value[3];
 } Shift[4];
-struct ConstantValues{
-	string WorkingValues;
-}ConstantValues[64];
+
 struct HashValues{
 	string InitialValues;
 	int OriginalValues[32];
 	int WorkingValues[32];
-}HashValues[8];
+} HashValues[8];
+
 struct binaryAddition{
 	int Data[32];
-}binaryAddition[8];
+} binaryAddition[8];
 
 void populateShiftValues(){
 	Shift[0].Value[0] = 7;
@@ -47,7 +49,7 @@ void populateShiftValues(){
 	Shift[3].Value[1] = 11;
 	Shift[3].Value[2] = 25;
 }
-void computeConstants(){
+void computeConstants(struct ConstantValueStruct ConstantValues[]){
 	ConstantValues[0].WorkingValues = "01000010100010100010111110011000";
 	ConstantValues[1].WorkingValues = "01110001001101110100010010010001";
 	ConstantValues[2].WorkingValues = "10110101110000001111101111001111";
@@ -248,9 +250,8 @@ string hexToBinary(char input[], int characterCount){
 	return result;
 }
 
-string SHA256(char minerInput[]){
+string SHA256(char minerInput[], struct ConstantValueStruct ConstantValues[]){
 	populateShiftValues();
-	computeConstants();
 	string result;
 	for(int i=0; i<2; i++){ //Loops twice to compute SHA256 twice for correct block hash
 		computeInitialHashValues(); //Needs to be recalculated every hash
@@ -447,6 +448,7 @@ string SHA256(char minerInput[]){
 			for(int j=0; j<64; j++){
 				minerInput[j] = temp[j];
 			}
+			//Clear rest of input
 			for(int j=64; j<160; j++){
 				minerInput[j] = '\0';
 			}
@@ -470,9 +472,12 @@ string SHA256(char minerInput[]){
 	}
 	return(result);
 }
-//4 Types of equations that needs to be computed
-//Equations 0 and 1 needs two right shifts and a normal shift
-//Eauations 2 and 3 needs three right shifts
+/*
+4 Types of equations that needs to be computed
+Equations 0 and 1 needs two right shifts and a normal shift
+Equations 2 and 3 needs three right shifts
+Each right shift/shift needs different values defined in Shift struct
+*/
 void equationCompute(int equationNumber, int wordNumber, int blockNumber){
 	int Order;
 	int RightShiftValue = 0;
@@ -554,7 +559,26 @@ void xortest(){
 		}
 	}
 }
+/*
+This function computes 2, 4, or 5 32 bit words when called based on the equationsCount argument
+equationsCount determines the amount of times that the for loop runs
+32 bit words to be binary added are stored in the binaryAddition array from 0 up to 4
 
+(2 words)[equationsCount = 3]:
+binaryAddition[0] + binaryAddition[1] = binaryAddition[3]
+
+(4 words)[equationsCount = 1]:
+binaryAddition[0] + binaryAddition[1] = binaryAddition[4]
+binaryAddition[2] + binaryAddition[3] = binaryAddition[5]
+
+binaryAddition[4] + binaryAddition[5] = binaryAddition[6]
+
+(5 words)[equationsCount = 0]:
+binaryAddition[0] + binaryAddition[1] = binaryAddition[5]
+binaryAddition[2] + binaryAddition[3] = binaryAddition[6]
+binaryAddition[4] + binaryAddition[5] = binaryAddition[7]
+binaryAddition[6] + binaryAddition[7] = binaryAddition[8]
+*/
 void binaryAdditionFunction(int equationsCount){
 	for(int i=0; i<4 - equationsCount; i++){
 		int carry = 0;

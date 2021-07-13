@@ -5,8 +5,12 @@ using std::cout;
 using std::cin;
 using std::string;
 
+struct ConstantValueStruct{
+	string WorkingValues;
+};
+
 void populateShiftValues();
-void computeConstants();
+void computeConstants(struct ConstantValueStruct ConstantValues[]);
 void computeInitialHashValues();
 string binaryToHex(string output[]);
 string hexToBinary(char input[], int characterCount);
@@ -18,4 +22,4 @@ void equationCompute(int equationNumber, int wordNumber, int blockNumber);
 void binaryAdditionFunction(int equationsCount);
 void majority();
 void choice();
-string SHA256(char minerInput[]);
+string SHA256(char minerInput[], struct ConstantValueStruct ConstantValues[]);
