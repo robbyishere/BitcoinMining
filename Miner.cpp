@@ -31,8 +31,11 @@ int main(){
     for(int i=0; i<8; i++){
         nonceCount[i] = 0;
         input[152+i] = 0;
-
     }    
+    //Convert input to binary
+    string message = hexToBinary(input, 152);
+    message = message + "00000000000000000000000000000000";
+    //Custom nonce prompt and conversion
     char answer;
     cout<<"Do you want to enter custom nonce? (Y or N): ";
     cin>>answer;
@@ -120,7 +123,7 @@ int main(){
         
         //Compute SHA256 hash from input
         string temp3;
-        temp3 = SHA256(input, ConstantValues);
+        temp3 = SHA256(message, ConstantValues);
         //Print hash
         cout<<count<<": "<<temp3<<endl;
         
@@ -218,10 +221,12 @@ int main(){
 	    		temp1[7-((i*2)-(3-j))] = nonce[((i*2)-j)];
 	    	}
 	    }
+        //Convert nonce to binary
+        string test = hexToBinary(temp1, 8);
         
         //Add nonce to block header
-        for(int i=0; i<8; i++){
-            input[152+i] = temp1[i];
+        for(int i=608; i<640; i++){
+            message[i] = test[i-608];
         }
     }
 }   

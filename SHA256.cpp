@@ -3,7 +3,6 @@ Cut down struct array values?
 */
 
 /* Ideas for optimization:
-Compute hex to binary on input during initialization then only compute hex to binary on nonce for every hash
 Utilize pointers?
 Use Right Shift operator
 Use XOR operator
@@ -250,13 +249,12 @@ string hexToBinary(char input[], int characterCount){
 	return result;
 }
 
-string SHA256(char minerInput[], struct ConstantValueStruct ConstantValues[]){
+string SHA256(string message, struct ConstantValueStruct ConstantValues[]){
+	char secondInput[64];
 	populateShiftValues();
 	string result;
 	for(int i=0; i<2; i++){ //Loops twice to compute SHA256 twice for correct block hash
 		computeInitialHashValues(); //Needs to be recalculated every hash
-		//Convert input to binary
-		string message = hexToBinary(minerInput, 160);
 		
 		//Pad message to 1024 (512*2) characters or 512 characters
 		int padStart;
@@ -266,6 +264,7 @@ string SHA256(char minerInput[], struct ConstantValueStruct ConstantValues[]){
 			padEnd = 1024;
 		}
 		if(i==1){
+			message = hexToBinary(secondInput, 64);
 			padStart = 256;
 			padEnd = 512;
 		}
@@ -446,11 +445,7 @@ string SHA256(char minerInput[], struct ConstantValueStruct ConstantValues[]){
 			string temp;
 			temp = binaryToHex(output);
 			for(int j=0; j<64; j++){
-				minerInput[j] = temp[j];
-			}
-			//Clear rest of input
-			for(int j=64; j<160; j++){
-				minerInput[j] = '\0';
+				secondInput[j] = temp[j];
 			}
 		}
 		
@@ -560,42 +555,42 @@ void xortest(){
 	}
 }
 /*
-This function computes 2, 4, or 5 32 bit words when called based on the equationsCount argument
-equationsCount determines the amount of times that the for loop runs
+This function computes 2, 4, or 5 32 bit words when called based on the wordCount argument
+wordCount determines the amount of times that the for loop runs
 32 bit words to be binary added are stored in the binaryAddition array from 0 up to 4
 
-(2 words)[equationsCount = 3]:
+(2 words)[wordCount = 3]:
 binaryAddition[0] + binaryAddition[1] = binaryAddition[3]
 
-(4 words)[equationsCount = 1]:
+(4 words)[wordCount = 1]:
 binaryAddition[0] + binaryAddition[1] = binaryAddition[4]
 binaryAddition[2] + binaryAddition[3] = binaryAddition[5]
 
 binaryAddition[4] + binaryAddition[5] = binaryAddition[6]
 
-(5 words)[equationsCount = 0]:
+(5 words)[wordCount = 0]:
 binaryAddition[0] + binaryAddition[1] = binaryAddition[5]
 binaryAddition[2] + binaryAddition[3] = binaryAddition[6]
 binaryAddition[4] + binaryAddition[5] = binaryAddition[7]
 binaryAddition[6] + binaryAddition[7] = binaryAddition[8]
 */
-void binaryAdditionFunction(int equationsCount){
-	for(int i=0; i<4 - equationsCount; i++){
+void binaryAdditionFunction(int wordCount){
+	for(int i=0; i<4 - wordCount; i++){
 		int carry = 0;
 		for(int j=0; j<32; j++){
 			if(binaryAddition[0 + (i*2)].Data[31-j] + binaryAddition[1 + (i*2)].Data[31-j] + carry == 0){
-				binaryAddition[5 + i - equationsCount].Data[31-j] = 0;
+				binaryAddition[5 + i - wordCount].Data[31-j] = 0;
 			}
 			if(binaryAddition[0 + (i*2)].Data[31-j] + binaryAddition[1 + (i*2)].Data[31-j] + carry == 1){
-				binaryAddition[5 + i - equationsCount].Data[31-j] = 1;
+				binaryAddition[5 + i - wordCount].Data[31-j] = 1;
 				carry = 0;
 			}
 			if(binaryAddition[0 + (i*2)].Data[31-j] + binaryAddition[1 + (i*2)].Data[31-j] + carry == 3){
-				binaryAddition[5 + i - equationsCount].Data[31-j] = 1;
+				binaryAddition[5 + i - wordCount].Data[31-j] = 1;
 				carry = 1;
 			}
 			if(binaryAddition[0 + (i*2)].Data[31-j] + binaryAddition[1 + (i*2)].Data[31-j] + carry == 2){
-				binaryAddition[5 + i - equationsCount].Data[31-j] = 0;
+				binaryAddition[5 + i - wordCount].Data[31-j] = 0;
 				carry = 1;
 			}
 		}

@@ -19,7 +19,7 @@ void rightShift(int RightShiftValue, int Order, int equationNumber, int wordNumb
 void shift(int ShiftValue, int Order, int wordNumber, int blockNumber);
 void xortest();
 void equationCompute(int equationNumber, int wordNumber, int blockNumber);
-void binaryAdditionFunction(int equationsCount);
+void binaryAdditionFunction(int wordCount);
 void majority();
 void choice();
-string SHA256(char minerInput[], struct ConstantValueStruct ConstantValues[]);
+string SHA256(string message, struct ConstantValueStruct ConstantValues[]);
