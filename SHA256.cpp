@@ -272,24 +272,18 @@ string SHA256(string message, struct ConstantValueStruct ConstantValues[]){
 			message = message + '0';
 		}
 
-		//Add padding separator and define message length
+		//Add padding separator, define message length and define number of block iterations
+		int blockCount;
 		if(i==0){
 			message[640] = '1'; //Separator
 			//Message length
 			message[1016] = '1';
 			message[1014] = '1';
+			blockCount = 2;
 		}
 		if(i==1){
 			message[256] = '1'; //Separator
 			message[503] = '1'; //Message length
-		}
-
-		//Splitting message into 512 bit message blocks and convert from string to int
-		int blockCount;
-		if(i==0){
-			blockCount = 2;
-		}
-		if(i==1){
 			blockCount = 1;
 		}
 		
@@ -300,6 +294,7 @@ string SHA256(string message, struct ConstantValueStruct ConstantValues[]){
 			int wordCount = 0;
 			for(int k=(512*j); k<512+(j*512); k++){ //Blocks are 512 bits long, fills schedule with 16, 32 bit words
 				for(int m=0; m<32; m++){
+					//Convert from string to int
 					if(message[k+m] == '1'){
 						schedule[j][wordCount].word[m] = 1;
 					}
@@ -403,7 +398,7 @@ string SHA256(string message, struct ConstantValueStruct ConstantValues[]){
 					HashValues[4].WorkingValues[m] = binaryAddition[2].Data[m];
 				}
 			}
-			//Add Working Hash Values to Original Hash Values
+			//Add Working Hash Values to Original Hash Values for next block
 			for(int k=0; k<8; k++){
 				for(int m=0; m<32; m++){
 					binaryAddition[0].Data[m] = HashValues[k].OriginalValues[m];
