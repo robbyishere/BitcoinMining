@@ -1,13 +1,14 @@
 /*
 TODO:
 	Learn how always blocks work
+	Learn difference between Functions, Tasks, and Modules
 */
 module hash;
 reg [0:1023] ins;
 reg [0:31] ins_Split [0:1] [0:63];
 reg [0:1] blockCount;
 reg [0:31] binaryAddition [0:4];
-integer i, j, k, m;
+integer i, j, k, m, n;
 //equationCompute variables
 reg [0:31] equationComputeData[0:3];
 reg [2:0] equationNumber;
@@ -48,11 +49,12 @@ initial begin
 			
 			$display(" ");
 			//Fill out rest of message schedule
-			for(k=16; k<64; k=k+1)begin
+			for(k=16; k<17; k=k+1)begin
 				binaryAddition[0] = equationCompute(1, k-2, j);
 				binaryAddition[1] = ins_Split[j][k-7];
 				binaryAddition[2] = equationCompute(0, k-15, j);
 				binaryAddition[3] = ins_Split[j][k-16];
+				//$display("%b", binaryAddition[0]);
 			end
 		end
 	end
@@ -63,18 +65,37 @@ function [31:0] equationCompute;
 	input [1:0] blockNumber;
 begin
 	for(m=0; m<2; m=m+1)begin
-		//rightShift(Shift[equationNumber][m], m, equationNumber, wordNumber, blockNumber);
+		$display(rightShift(shiftValues[equationNumber][m], m, equationNumber, wordNumber, blockNumber));
 	end
 end
 endfunction
 
+//May be able to improve instead of checking bits individually?
 function rightShift;
-	input RightShiftValue;
+	input [4:0] RightShiftValue;
 	input [1:0] Order;
-	input equationNumber;
-	input wordNumber;
-	input blockNumber;
+	input [2:0] equationNumber;
+	input [5:0] wordNumber;
+	input [1:0] blockNumber;
+	reg [31:0] Copy;
+	reg [31:0] rightCopy;
 	begin
+		if(equationNumber == 0 | equationNumber == 1)begin
+			Copy = ins_Split[blockNumber][wordNumber];
+		end
+		if(equationNumber == 2)begin
+		end
+		if(equationNumber == 3)begin
+		end
+		for(n=0; n<RightShiftValue; n=n+1)begin
+			rightCopy[(32-RightShiftValue)+n] = Copy[n];
+		end
+		for(n=0; n<32-RightShiftValue; n=n+1)begin
+			rightCopy[(31-RightShiftValue)-n] = 0;
+		end
+		equationComputeData[Order] = (Copy>>RightShiftValue) + rightCopy;
+		$display(Order," %b", equationComputeData[Order]);
+		rightShift = 1;
 	end
 endfunction
 
