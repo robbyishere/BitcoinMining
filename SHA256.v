@@ -7,14 +7,13 @@ reg [0:1023] ins;
 reg [0:31] ins_Split [0:1] [0:63];
 reg [0:1] blockCount;
 reg [0:31] binaryAddition [0:4];
-reg [0:31] equationComputeData[0:3];
-reg [0:5] Shift [0:2] [0:2];
 integer i, j, k, m;
-//equationCompute declarations
+//equationCompute variables
+reg [0:31] equationComputeData[0:3];
 reg [2:0] equationNumber;
 reg [5:0] wordNumber;
 reg [1:0] blockNumber;
-//shiftValues declation
+//shiftValues variables
 reg [0:4] shiftValues [0:3] [0:2];
 initial begin
     ins[0:607] = 608'h0100000050120119172a610421a6c3011dd330d9df07b63616c2cc1f1cd00200000000006657a9252aacd5c0b2940996ecff952228c3067cc38d4885efb5a4ac4247e9f337221b4d4c86041b;
@@ -43,7 +42,7 @@ initial begin
 
 			//Split block into 16, 32 bit words
 			for(k=0; k<16; k=k+1)begin
-				ins_Split[j][k] = ins[32*k+:32];
+				ins_Split[j][k] = ins[(32*k)+(512*j)+:32];
 				$display("%b", ins_Split[j][k]);
 			end
 			
@@ -79,6 +78,7 @@ function rightShift;
 	end
 endfunction
 
+//Try and make this globally accessible for multiple hashing instances
 function populateShiftValues;
 	input null; //functions need to have at least one input
 begin
