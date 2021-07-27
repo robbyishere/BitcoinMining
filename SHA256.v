@@ -2,6 +2,14 @@
 TODO:
 	Learn how always blocks work
 	Learn difference between Functions, Tasks, and Modules
+
+
+Idea when calling equationCompute
+ - Needs to be a module in order to pass parameters
+ - Parameters are defined during the call
+ - Parameters are the shift/right shift values (populateShiftValues can be removed)
+ - Parameters can be passed down to shift and right shift modules
+
 */
 module hash;
 reg [0:1023] ins;
