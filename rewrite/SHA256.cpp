@@ -9,12 +9,16 @@ Find faster string to integer function?
 struct constantValues{
 	std::bitset<32> word;
 }constantValue[64];
+struct hashValues{
+	std::bitset<32> word;
+}hashValue[1][7];
 struct messageStruct{
 	std::bitset<32> word;
 }message[31];
 struct blockStruct{
 	std::bitset<32> word;
 }block[1][64];
+
 void populateConstantValues(){
 	constantValue[0].word = 0b01000010100010100010111110011000;
 	constantValue[1].word = 0b01110001001101110100010010010001;
@@ -81,6 +85,22 @@ void populateConstantValues(){
 	constantValue[62].word = 0b10111110111110011010001111110111;
 	constantValue[63].word = 0b11000110011100010111100011110010;
 }
+
+void populateHashValues(){
+	hashValue[0][0].word = 0b01101010000010011110011001100111;
+	hashValue[0][1].word = 0b10111011011001111010111010000101;
+	hashValue[0][2].word = 0b00111100011011101111001101110010;
+	hashValue[0][3].word = 0b10100101010011111111010100111010;
+	hashValue[0][4].word = 0b01010001000011100101001001111111;
+	hashValue[0][5].word = 0b10011011000001010110100010001100;
+	hashValue[0][6].word = 0b00011111100000111101100110101011;
+	hashValue[0][7].word = 0b01011011111000001100110100011001;
+	//Duplicate values
+	for(int i=0; i<8; i++){
+		hashValue[1][i] = hashValue[0][i];
+	}
+}
+
 void hexToBinary(char input[]){
 	std::string result;
 	int count=0;
@@ -147,6 +167,7 @@ void hexToBinary(char input[]){
 	}
 }
 
+//Also known as a right rotate
 std::bitset<32> rightShift(std::bitset<32> word, int rightShiftValue){
 	std::bitset<32> temp;
 	for(int i=0; i<32; i++){
@@ -160,6 +181,7 @@ std::bitset<32> rightShift(std::bitset<32> word, int rightShiftValue){
 	return temp;
 }
 
+//Applies rightShifts and Shifts to the word depending on the shiftValues and XOR all the results together
 std::bitset<32> equationCompute(std::bitset<32> word, int equationType, int shiftValue1, int shiftValue2, int shiftValue3){
 	std::bitset <32> XOR[2];
 	XOR[0] = rightShift(word, shiftValue1);
@@ -171,6 +193,33 @@ std::bitset<32> equationCompute(std::bitset<32> word, int equationType, int shif
 		XOR[2] = rightShift(word, shiftValue3);
 	}
 	return XOR[0]^=XOR[1]^=XOR[2];
+}
+
+std::bitset<32> majority(){ //Put all words on top of each other and analyze each column if it has a majority of '1's or '0's.
+	std::bitset<32> temp;
+	for(int i=0; i<32; i++){
+		int add = hashValue[1][0].word[i] + hashValue[1][1].word[i] + hashValue[1][2].word[i];
+		if(add == 2 | add == 3){
+			temp.set(i, 1);
+		}
+		else{
+			temp.set(i, 0);
+		}
+	}
+	return temp;
+}
+
+std::bitset<32> choice(){ //hashValue[4] determines if the output is the value of hashValue[5] or hashValue[6]
+	std::bitset<32> temp;
+	for(int i=0; i<32; i++){
+		if(hashValue[1][4].word[i] == 1){
+			temp.set(i, hashValue[1][5].word[i]);
+		}
+		if(hashValue[1][4].word[i] == 0){
+			temp.set(i, hashValue[1][6].word[i]);
+		}
+	}
+	return temp;
 }
 
 int main(){
@@ -193,6 +242,7 @@ int main(){
 	}
 	//Compute hash twice
 	for(int i=0; i<2; i++){
+		populateHashValues(); //Needs to be reset for second hash
 		//Add separator, message length, and block count
 		int blockCount;
 		if(i==0){
