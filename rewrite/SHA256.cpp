@@ -1,17 +1,19 @@
 /*TODO
-**Include <bit> for bit manipulation and rotr
-Include <bitset> for bit manipulation
+Include <bit> for rotr
 Find faster string to integer function?
 */
+
 #include <iostream>
+#include <bitset>
+
 struct constantValues{
-	unsigned int word : 32;
+	std::bitset<32> word;
 }constantValue[64];
 struct messageStruct{
-	unsigned int word : 32;
+	std::bitset<32> word;
 }message[31];
 struct blockStruct{
-	unsigned int word : 32;
+	std::bitset<32> word;
 }block[1][64];
 void populateConstantValues(){
 	constantValue[0].word = 0b01000010100010100010111110011000;
@@ -145,6 +147,32 @@ void hexToBinary(char input[]){
 	}
 }
 
+std::bitset<32> rightShift(std::bitset<32> word, int rightShiftValue){
+	std::bitset<32> temp;
+	for(int i=0; i<32; i++){
+		if(rightShiftValue-1-i>-1){
+			temp.set(31-i,word[rightShiftValue-1-i]);
+		}
+		else{
+			temp.set(31-i,word[31+(rightShiftValue-i)]);
+		}
+	}
+	return temp;
+}
+
+std::bitset<32> equationCompute(std::bitset<32> word, int equationType, int shiftValue1, int shiftValue2, int shiftValue3){
+	std::bitset <32> XOR[2];
+	XOR[0] = rightShift(word, shiftValue1);
+	XOR[1] = rightShift(word, shiftValue2);
+	if(equationType == 0){
+		XOR[2] = word>>shiftValue3;
+	}
+	if(equationType == 1){
+		XOR[2] = rightShift(word, shiftValue3);
+	}
+	return XOR[0]^=XOR[1]^=XOR[2];
+}
+
 int main(){
 	populateConstantValues();
 	//Initialize header
@@ -157,29 +185,37 @@ int main(){
 	for(int i=0; i<8; i++){
 		input[152+i] = '0';
 	}
-	
+
 	hexToBinary(input);
 	//Extend and initialize rest of message
 	for(int i=20; i<32; i++){
 		message[i].word = 0;
 	}
-	for(int i=0; i<32; i++){
-		std::cout<<i<<" "<<message[i].word<<std::endl;
+	//Compute hash twice
+	for(int i=0; i<2; i++){
+		//Add separator, message length, and block count
+		int blockCount;
+		if(i==0){
+			message[20].word.set(31,1);
+			message[31].word.set(7,1);
+			message[31].word.set(9,1);
+			blockCount = 2;
+		}
+		if(i==1){
+			blockCount = 1;
+			exit(0);
+		}
+		for(int i=0; i<blockCount; i++){
+			//Split message into blocks
+			for(int j=0; j<16; j++){
+				block[i][j].word = message[j+(16*i)].word;
+				std::cout<<block[i][j].word<<std::endl;
+			}
+			for(int j=16; j<64; j++){
+				block[i][j].word = block[i][j-7].word.to_ulong() + block[i][j-16].word.to_ulong() + equationCompute(block[i][j-2].word, 0, 17, 19, 10).to_ulong() + equationCompute(block[i][j-15].word, 0, 7, 18, 3).to_ulong();
+				std::cout<<block[i][j].word<<std::endl;
+			}
+			std::cout<<std::endl;
+		}
 	}
-	
-	//ADD SEPARATOR AND MESSAGE LENGTH BEFORE SPLITTING BLOCKS
-
-	//Split message into blocks
-	for(int i=0; i<16; i++){
-		block[0][i].word = message[i].word;
-		block[1][i].word = message[i+16].word;
-	}
-	for(int i=0; i<16; i++){
-		std::cout<<block[0][i].word<<std::endl;
-	}
-	std::cout<<std::endl;
-	for(int i=0; i<16; i++){
-		std::cout<<block[1][i].word<<std::endl;
-	}
-	
 }
