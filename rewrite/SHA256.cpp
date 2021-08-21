@@ -205,15 +205,16 @@ int main(){
 			blockCount = 1;
 			exit(0);
 		}
-		for(int i=0; i<blockCount; i++){
+		for(int j=0; j<blockCount; j++){
 			//Split message into blocks
-			for(int j=0; j<16; j++){
-				block[i][j].word = message[j+(16*i)].word;
-				std::cout<<block[i][j].word<<std::endl;
+			for(int k=0; k<16; k++){
+				block[j][k].word = message[k+(16*j)].word;
+				std::cout<<block[j][k].word<<std::endl;
 			}
-			for(int j=16; j<64; j++){
-				block[i][j].word = block[i][j-7].word.to_ulong() + block[i][j-16].word.to_ulong() + equationCompute(block[i][j-2].word, 0, 17, 19, 10).to_ulong() + equationCompute(block[i][j-15].word, 0, 7, 18, 3).to_ulong();
-				std::cout<<block[i][j].word<<std::endl;
+			//Fill blocks
+			for(int k=16; k<64; k++){
+				block[j][k].word = block[j][k-7].word.to_ulong() + block[j][k-16].word.to_ulong() + equationCompute(block[j][k-2].word, 0, 17, 19, 10).to_ulong() + equationCompute(block[j][k-15].word, 0, 7, 18, 3).to_ulong();
+				std::cout<<block[j][k].word<<std::endl;
 			}
 			std::cout<<std::endl;
 		}
