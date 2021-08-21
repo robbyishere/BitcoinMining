@@ -8,7 +8,7 @@ Find faster string to integer function?
 
 struct constantValues{
 	std::bitset<32> word;
-}constantValue[64];
+}constantValue[63];
 struct hashValues{
 	std::bitset<32> word;
 }hashValue[1][7];
@@ -17,7 +17,7 @@ struct messageStruct{
 }message[31];
 struct blockStruct{
 	std::bitset<32> word;
-}block[1][64];
+}block[1][63];
 
 void populateConstantValues(){
 	constantValue[0].word = 0b01000010100010100010111110011000;
@@ -234,15 +234,18 @@ int main(){
 	for(int i=0; i<8; i++){
 		input[152+i] = '0';
 	}
-
 	hexToBinary(input);
-	//Extend and initialize rest of message
-	for(int i=20; i<32; i++){
-		message[i].word = 0;
+	for(int i=0; i<32; i++){
+		std::cout<<message[i].word<<std::endl;
 	}
+	std::cout<<std::endl;
 	//Compute hash twice
 	for(int i=0; i<2; i++){
-		populateHashValues(); //Needs to be reset for second hash
+		populateHashValues(); //Needs to be reset for second hash //SOMEHOW BREAKS MESSAGE???!!!
+		for(int j=0; j<32; j++){
+			std::cout<<message[j].word<<std::endl;
+		}
+		exit(0);
 		//Add separator, message length, and block count
 		int blockCount;
 		if(i==0){
@@ -255,6 +258,7 @@ int main(){
 			blockCount = 1;
 			exit(0);
 		}
+		std::cout<<std::endl;
 		for(int j=0; j<blockCount; j++){
 			//Split message into blocks
 			for(int k=0; k<16; k++){
@@ -267,6 +271,30 @@ int main(){
 				std::cout<<block[j][k].word<<std::endl;
 			}
 			std::cout<<std::endl;
+			
+			for(int k=0; k<64; k++){
+				//Temp words for compression
+				std::bitset<32> temp[1];
+				temp[0] = equationCompute(hashValue[1][0].word, 1, 6, 11, 25).to_ulong() + hashValue[1][7].word.to_ulong() + choice().to_ulong() + constantValue[k].word.to_ulong() + block[j][k].word.to_ulong();
+				temp[1] = equationCompute(hashValue[1][0].word, 1, 2, 13, 22).to_ulong() + majority().to_ulong();
+				//Compression
+				//Move hashValues down 1
+				for(int m=7; m>0; m--){
+					hashValue[1][m].word = hashValue[1][m-1].word;
+				}
+				hashValue[1][0].word = temp[0].to_ulong() + temp[1].to_ulong();
+				hashValue[1][4].word = hashValue[1][4].word.to_ulong() + temp[0].to_ulong(); 
+			}
+			if(blockCount == 2){
+				//Add modified hashValues to original hashValues to compute second block
+				for(int k=0; k<8; k++){
+					hashValue[0][k].word = hashValue[0][k].word.to_ulong() + hashValue[1][k].word.to_ulong();
+				}
+			}
 		}
+		for(int j=0; j<8; j++){
+			std::cout<<hashValue[1][j].word<<std::endl;
+		}
+		exit(0);
 	}
 }
