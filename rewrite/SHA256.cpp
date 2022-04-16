@@ -1,23 +1,26 @@
 /*TODO
+Improve Hex to Binary 
 Include <bit> for rotr
 Find faster string to integer function?
 */
 
 #include <iostream>
 #include <bitset>
+#include <cstring>
+#include <sstream>
 
 struct constantValues{
 	std::bitset<32> word;
-}constantValue[63];
+}constantValue[64];
 struct hashValues{
 	std::bitset<32> word;
-}hashValue[1][7];
+}hashValue[2][8];
 struct messageStruct{
 	std::bitset<32> word;
-}message[31];
+}message[32];
 struct blockStruct{
 	std::bitset<32> word;
-}block[1][63];
+}block[2][64];
 
 void populateConstantValues(){
 	constantValue[0].word = 0b01000010100010100010111110011000;
@@ -224,58 +227,51 @@ std::bitset<32> choice(){ //hashValue[4] determines if the output is the value o
 
 int main(){
 	populateConstantValues();
-	//Initialize header
-	char input[169]; //Needs 169 characters to avoid corruption after adding nonce
-	std::cout<<"Enter Block Header: ";
-	std::cin.getline(input,153);
-	std::cin.clear();
-	std::cin.ignore(9999,'\n');
-	//Initialize nonce
-	for(int i=0; i<8; i++){
-		input[152+i] = '0';
-	}
-	hexToBinary(input);
-	for(int i=0; i<32; i++){
-		std::cout<<message[i].word<<std::endl;
-	}
-	std::cout<<std::endl;
+	std::string header;
 	//Compute hash twice
 	for(int i=0; i<2; i++){
-		populateHashValues(); //Needs to be reset for second hash //SOMEHOW BREAKS MESSAGE???!!!
-		for(int j=0; j<32; j++){
-			std::cout<<message[j].word<<std::endl;
-		}
-		exit(0);
+		populateHashValues(); //Needs to be reset for second hash 
+		//Initialize header
+		char input[161];
+		
 		//Add separator, message length, and block count
 		int blockCount;
 		if(i==0){
+			header="0100000050120119172a610421a6c3011dd330d9df07b63616c2cc1f1cd00200000000006657a9252aacd5c0b2940996ecff952228c3067cc38d4885efb5a4ac4247e9f337221b4d4c86041b00000000";
+			strcpy(input,header.c_str());
+			//Initialize nonce
+			for(int i=0; i<8; i++){
+				input[152+i] = '0';
+			}
+			hexToBinary(input);
 			message[20].word.set(31,1);
 			message[31].word.set(7,1);
 			message[31].word.set(9,1);
 			blockCount = 2;
 		}
 		if(i==1){
+			for(int j=0; j<161; j++){
+				input[j]='0';
+			}
+			strcpy(input,header.c_str());
+			hexToBinary(input);
+		        message[8].word.set(31,1);
+			message[15].word.set(8,1);	
 			blockCount = 1;
-			exit(0);
 		}
-		std::cout<<std::endl;
 		for(int j=0; j<blockCount; j++){
 			//Split message into blocks
 			for(int k=0; k<16; k++){
 				block[j][k].word = message[k+(16*j)].word;
-				std::cout<<block[j][k].word<<std::endl;
 			}
 			//Fill blocks
 			for(int k=16; k<64; k++){
 				block[j][k].word = block[j][k-7].word.to_ulong() + block[j][k-16].word.to_ulong() + equationCompute(block[j][k-2].word, 0, 17, 19, 10).to_ulong() + equationCompute(block[j][k-15].word, 0, 7, 18, 3).to_ulong();
-				std::cout<<block[j][k].word<<std::endl;
 			}
-			std::cout<<std::endl;
-			
 			for(int k=0; k<64; k++){
 				//Temp words for compression
-				std::bitset<32> temp[1];
-				temp[0] = equationCompute(hashValue[1][0].word, 1, 6, 11, 25).to_ulong() + hashValue[1][7].word.to_ulong() + choice().to_ulong() + constantValue[k].word.to_ulong() + block[j][k].word.to_ulong();
+				std::bitset<32> temp[2];
+				temp[0] = equationCompute(hashValue[1][4].word, 1, 6, 11, 25).to_ulong() + hashValue[1][7].word.to_ulong() + choice().to_ulong() + constantValue[k].word.to_ulong() + block[j][k].word.to_ulong();
 				temp[1] = equationCompute(hashValue[1][0].word, 1, 2, 13, 22).to_ulong() + majority().to_ulong();
 				//Compression
 				//Move hashValues down 1
@@ -285,16 +281,35 @@ int main(){
 				hashValue[1][0].word = temp[0].to_ulong() + temp[1].to_ulong();
 				hashValue[1][4].word = hashValue[1][4].word.to_ulong() + temp[0].to_ulong(); 
 			}
-			if(blockCount == 2){
-				//Add modified hashValues to original hashValues to compute second block
-				for(int k=0; k<8; k++){
-					hashValue[0][k].word = hashValue[0][k].word.to_ulong() + hashValue[1][k].word.to_ulong();
-				}
+			//Add modified hashValues to original hashValues to compute second block
+			for(int k=0; k<8; k++){
+				hashValue[0][k].word = hashValue[0][k].word.to_ulong() + hashValue[1][k].word.to_ulong();
+				hashValue[1][k].word=hashValue[0][k].word;
 			}
+			
 		}
+		header="";
 		for(int j=0; j<8; j++){
-			std::cout<<hashValue[1][j].word<<std::endl;
+			//Convert from binary to hex
+			std::bitset<4> hexConvert;
+			for(int k=0; k<8; k++){
+				for(int m=0; m<4; m++){
+					hexConvert.set(3-m,hashValue[1][j].word[(31-(4*k))-m]);
+				}
+				std::stringstream ss;
+				ss<<std::hex<<hexConvert.to_ulong();
+				//Save to header for next second computation
+				header=header+ss.str();	
+			}
+		
 		}
-		exit(0);
 	}
+	//Convert to little endian
+	std::string result;
+	for(int i=32; i>0; i--){
+		for(int j=2; j>0; j--){
+			result=result+header[((i*2)-j)];
+		}
+	}
+	std::cout<<result<<std::endl;
 }

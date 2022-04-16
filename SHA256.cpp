@@ -354,6 +354,7 @@ string SHA256(string message, struct ConstantValueStruct ConstantValues[]){
 				}
 
 				//Clear binaryAddition class
+				//Clear binaryAddition struct
 				for(int m=0; m<9; m++){
 					for(int n=0; n<32; n++){
 						binaryAddition[m].Data[n] = 0;
@@ -612,4 +613,3 @@ void choice(){
 			binaryAddition[1].Data[i] = HashValues[6].WorkingValues[i]; 
 		}
 	}
-}
